@@ -55,15 +55,48 @@ export class TrackNetwork {
    */
   private setupBridgeSlots(): void {
     // Bridge gap positions along the river gorge at Z = 15, Y = 0.9
-    // Gap coordinates: X = -1.2, 0.0, +1.2
-    const gapXPositions = [-1.2, 0.0, 1.2];
+    // Three 2x2 bricks placed at X = -2.0, 0.0, +2.0
+    const gapXPositions = [-2.0, 0.0, 2.0];
+
+    // Bridge stone foundation abutments / pillars on each river bank
+    const abutmentMat = BrickFactory.getMaterial('#8A9299', 0.5, 0.1);
+    const abutmentGeo = new THREE.BoxGeometry(1.4, 1.2, 3.2);
+
+    const leftAbutment = new THREE.Mesh(abutmentGeo, abutmentMat);
+    leftAbutment.position.set(-3.7, 0.45, 15);
+    leftAbutment.castShadow = true;
+    leftAbutment.receiveShadow = true;
+
+    const rightAbutment = new THREE.Mesh(abutmentGeo, abutmentMat);
+    rightAbutment.position.set(3.7, 0.45, 15);
+    rightAbutment.castShadow = true;
+    rightAbutment.receiveShadow = true;
+
+    this.bridgeGroup.add(leftAbutment, rightAbutment);
+
+    // Glowing golden yellow material for the missing bridge slots
+    const yellowGhostMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#FAC80A'),
+      emissive: new THREE.Color('#FAC80A'),
+      emissiveIntensity: 0.75,
+      transparent: true,
+      opacity: 0.7,
+      roughness: 0.2,
+      metalness: 0.1
+    });
 
     gapXPositions.forEach((x, index) => {
       const pos = new THREE.Vector3(x, 0.9, 15);
       const rot = new THREE.Euler(0, 0, 0);
 
-      // Create glowing wireframe ghost for each missing slot
+      // Create glowing yellow ghost for each missing slot
       const ghost = BrickFactory.createStandardBrick(2, 2, '#FAC80A', true, true);
+      ghost.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = yellowGhostMat;
+        }
+      });
+
       ghost.position.copy(pos);
       // Offset so base rests at pos.y
       ghost.position.y -= BrickFactory.BRICK_HEIGHT / 2;
@@ -206,6 +239,29 @@ export class TrackNetwork {
       slot.ghostMesh.visible = false;
     }
 
+    // Add wooden sleeper and dual rails directly on top of the placed bridge brick!
+    const sleeperMat = BrickFactory.getMaterial('#5D4037', 0.6, 0.05);
+    const railMat = BrickFactory.getMaterial('#C0C8CF', 0.15, 0.9);
+
+    const bridgeTrackPiece = new THREE.Group();
+    const sleeperGeo = new THREE.BoxGeometry(0.5, 0.2, 2.2);
+    const sleeper = new THREE.Mesh(sleeperGeo, sleeperMat);
+    sleeper.position.set(0, BrickFactory.BRICK_HEIGHT + 0.1, 0);
+    sleeper.castShadow = true;
+    bridgeTrackPiece.add(sleeper);
+
+    const railGeo = new THREE.BoxGeometry(2.0, 0.18, 0.1);
+    const leftRail = new THREE.Mesh(railGeo, railMat);
+    leftRail.position.set(0, BrickFactory.BRICK_HEIGHT + 0.22, -0.65);
+    leftRail.castShadow = true;
+
+    const rightRail = new THREE.Mesh(railGeo, railMat);
+    rightRail.position.set(0, BrickFactory.BRICK_HEIGHT + 0.22, 0.65);
+    rightRail.castShadow = true;
+
+    bridgeTrackPiece.add(leftRail, rightRail);
+    brickGroup.add(bridgeTrackPiece);
+
     if (this.bridgeSlots.every(s => s.isFilled)) {
       this.isBridgeRepaired = true;
     }
@@ -213,17 +269,13 @@ export class TrackNetwork {
   }
 
   public repairBridgeInstantly(): void {
-    this.bridgeSlots.forEach((slot) => {
+    this.bridgeSlots.forEach((slot, idx) => {
       if (!slot.isFilled) {
         const brick = BrickFactory.createStandardBrick(2, 2, '#FAC80A');
         brick.position.copy(slot.position);
         brick.position.y -= BrickFactory.BRICK_HEIGHT / 2;
         this.bridgeGroup.add(brick);
-        slot.isFilled = true;
-        slot.mesh = brick;
-        if (slot.ghostMesh) {
-          slot.ghostMesh.visible = false;
-        }
+        this.fillBridgeSlot(idx, brick);
       }
     });
     this.isBridgeRepaired = true;

@@ -242,22 +242,40 @@ export class GridSystem {
     const effWidth = isRotated ? def.depth : def.width;
     const effDepth = isRotated ? def.width : def.depth;
 
-    // Grid Snap along X and Z
-    const snapX = Math.round(point.x + (effWidth % 2 === 0 ? 0.5 : 0)) - (effWidth % 2 === 0 ? 0.5 : 0);
-    const snapZ = Math.round(point.z + (effDepth % 2 === 0 ? 0.5 : 0)) - (effDepth % 2 === 0 ? 0.5 : 0);
-
-    // Height layer snap
+    // Grid Snap along X and Z, with Smart Bridge Snap Assist for kids!
+    let snapX = 0;
+    let snapZ = 0;
     let snapY = 0;
     let layer = 0;
 
-    if (normal.y > 0.5) {
-      // Top of something
-      const hUnit = BrickFactory.BRICK_HEIGHT;
-      layer = Math.max(0, Math.floor((point.y + 0.05) / hUnit));
-      snapY = layer * hUnit;
+    const isNearBridge = Math.abs(point.z - 15) < 2.2 && Math.abs(point.x) < 3.6;
+    if (isNearBridge) {
+      const bridgeSlots = [-2.0, 0.0, 2.0];
+      let bestSlot = bridgeSlots[0];
+      let bestDist = 999;
+      bridgeSlots.forEach((s) => {
+        const d = Math.abs(point.x - s);
+        if (d < bestDist) {
+          bestDist = d;
+          bestSlot = s;
+        }
+      });
+      snapX = bestSlot;
+      snapZ = 15;
+      snapY = 0.9 - BrickFactory.BRICK_HEIGHT / 2;
+      layer = 1;
     } else {
-      snapY = 0;
-      layer = 0;
+      snapX = Math.round(point.x + (effWidth % 2 === 0 ? 0.5 : 0)) - (effWidth % 2 === 0 ? 0.5 : 0);
+      snapZ = Math.round(point.z + (effDepth % 2 === 0 ? 0.5 : 0)) - (effDepth % 2 === 0 ? 0.5 : 0);
+
+      if (normal.y > 0.5) {
+        const hUnit = BrickFactory.BRICK_HEIGHT;
+        layer = Math.max(0, Math.floor((point.y + 0.05) / hUnit));
+        snapY = layer * hUnit;
+      } else {
+        snapY = 0;
+        layer = 0;
+      }
     }
 
     this.lastSnapCoord = { x: snapX, y: snapY, z: snapZ, layer };
@@ -267,7 +285,7 @@ export class GridSystem {
     this.ghostGroup.visible = true;
 
     // Collision validation check
-    const isValid = this.checkPlacementValidity(snapX, layer, snapZ, effWidth, effDepth);
+    const isValid = isNearBridge || this.checkPlacementValidity(snapX, layer, snapZ, effWidth, effDepth);
     if (isValid !== this.currentGhostValid) {
       this.currentGhostValid = isValid;
       this.ghostGroup.traverse((child) => {
