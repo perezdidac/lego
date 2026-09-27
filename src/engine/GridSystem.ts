@@ -383,11 +383,11 @@ export class GridSystem {
     this.placedBricks.push(placed);
 
     // Check if placement filled a bridge slot in Mission 1!
-    // Bridge gap is at Z = 15, Y near 0.9, X in [-1.2, 0, 1.2]
-    if (Math.abs(z - 15) < 1.0 && Math.abs(y - 0.9) < 0.8) {
-      const slotIndex = Math.abs(x - (-1.2)) < 0.6 ? 0 :
-                        Math.abs(x - 0.0) < 0.6 ? 1 :
-                        Math.abs(x - 1.2) < 0.6 ? 2 : -1;
+    // Bridge gap is at Z = 15, X in [-2.0, 0, 2.0]
+    if (Math.abs(z - 15) < 1.5) {
+      const slotIndex = Math.abs(x - (-2.0)) < 0.8 ? 0 :
+                        Math.abs(x - 0.0) < 0.8 ? 1 :
+                        Math.abs(x - 2.0) < 0.8 ? 2 : -1;
       if (slotIndex !== -1 && this.onBridgeGapFilled) {
         this.onBridgeGapFilled(slotIndex, brickGroup);
       }

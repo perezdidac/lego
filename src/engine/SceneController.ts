@@ -27,8 +27,8 @@ export class SceneController {
 
     // 2. Camera
     const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.PerspectiveCamera(48, aspect, 0.2, 200);
-    this.camera.position.set(0, 22, 28);
+    this.camera = new THREE.PerspectiveCamera(46, aspect, 0.2, 200);
+    this.camera.position.set(16, 22, 20); // 3/4 isometric view displaying whole landscape!
 
     // 3. Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -150,16 +150,15 @@ export class SceneController {
     const up = new THREE.Vector3(0, 1, 0);
 
     if (this.viewMode === 'chase') {
-      // Third person chase camera behind locomotive
-      // Distance slightly expands as train moves faster
-      const chaseDist = 9.0 + (Math.abs(trainSpeed) / 12) * 2.5;
-      const chaseHeight = 5.2;
+      // Third person chase camera behind the entire train (loco + tender + coach)
+      const chaseDist = 15.0 + (Math.abs(trainSpeed) / 12) * 2.5;
+      const chaseHeight = 5.8;
 
       this.targetCameraPos.copy(trainPos)
         .addScaledVector(forward, -chaseDist)
         .addScaledVector(up, chaseHeight);
 
-      this.targetLookAt.copy(trainPos).addScaledVector(forward, 4.0).addScaledVector(up, 1.2);
+      this.targetLookAt.copy(trainPos).addScaledVector(forward, 2.0).addScaledVector(up, 1.8);
 
       // Smooth lerp
       const lerpFactor = Math.min(1.0, dt * 5.0);
@@ -168,16 +167,15 @@ export class SceneController {
       this.camera.lookAt(this.currentLookAt);
 
     } else if (this.viewMode === 'cab') {
-      // Driver Cab View looking through front windshield
-      const cabOffset = new THREE.Vector3(0, 2.3, -1.0).applyQuaternion(trainRoot.quaternion);
+      // Driver Cab View looking through front windshield over the boiler
+      const cabOffset = new THREE.Vector3(0, 2.4, -1.2).applyQuaternion(trainRoot.quaternion);
       this.targetCameraPos.copy(trainPos).add(cabOffset);
-      this.targetLookAt.copy(trainPos).addScaledVector(forward, 15.0).addScaledVector(up, 1.5);
+      this.targetLookAt.copy(trainPos).addScaledVector(forward, 15.0).addScaledVector(up, 1.6);
 
       const lerpFactor = Math.min(1.0, dt * 10.0);
       this.camera.position.lerp(this.targetCameraPos, lerpFactor);
       this.currentLookAt.lerp(this.targetLookAt, lerpFactor);
       this.camera.lookAt(this.currentLookAt);
-
     } else if (this.viewMode === 'top') {
       // High isometric / top view
       this.targetCameraPos.copy(trainPos).add(new THREE.Vector3(0, 24, 8));
