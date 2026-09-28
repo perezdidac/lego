@@ -12,6 +12,7 @@ export type MissionId =
   | 'cozy_cottage'
   | 'lay_tracks'
   | 'town_festival'
+  | 'farm_animals'
   | 'free_build';
 
 export interface MissionState {
@@ -30,6 +31,10 @@ export interface MissionState {
   // Mission 6: Town
   passengersPlaced: number;
   lampsPlaced: number;
+  // Mission 7: Farm
+  cowsPlaced: number;
+  sheepsPlaced: number;
+  ducksPlaced: number;
   isMissionCompleted: boolean;
 }
 
@@ -49,6 +54,9 @@ export class MissionManager {
     tracksPlaced: 0,
     passengersPlaced: 0,
     lampsPlaced: 0,
+    cowsPlaced: 0,
+    sheepsPlaced: 0,
+    ducksPlaced: 0,
     isMissionCompleted: false
   };
 
@@ -109,6 +117,12 @@ export class MissionManager {
       this.state.passengersPlaced = 0;
       this.state.lampsPlaced = 0;
       voiceHandler.speak(CATALAN_MISSIONS.mission6.introPrompt, true);
+      this.onCategorySuggestCallback?.('natura');
+    } else if (missionId === 'farm_animals') {
+      this.state.cowsPlaced = 0;
+      this.state.sheepsPlaced = 0;
+      this.state.ducksPlaced = 0;
+      voiceHandler.speak(CATALAN_MISSIONS.mission7.introPrompt, true);
       this.onCategorySuggestCallback?.('natura');
     } else if (missionId === 'free_build') {
       voiceHandler.speak('Mode Construcció Lliure! Pots crear el teu propi món de joguina i conduir el tren!', true);
@@ -252,7 +266,33 @@ export class MissionManager {
     if (this.state.currentMissionId === 'town_festival' && !this.state.isMissionCompleted) {
       this.notifyStateChange();
       if (this.state.passengersPlaced >= 2 && this.state.lampsPlaced >= 1) {
-        this.completeMission('town_festival', CATALAN_MISSIONS.mission6.completedPrompt, 'free_build');
+        this.completeMission('town_festival', CATALAN_MISSIONS.mission6.completedPrompt, 'farm_animals');
+        return;
+      }
+    }
+
+    // 5. Mission 7: Farm Animals
+    if (shape === 'vaca') {
+      this.state.cowsPlaced++;
+      if (this.state.currentMissionId === 'farm_animals') {
+        voiceHandler.speak(CATALAN_MISSIONS.mission7.cowDonePrompt);
+      }
+    } else if (shape === 'ovella') {
+      this.state.sheepsPlaced++;
+      if (this.state.currentMissionId === 'farm_animals') {
+        voiceHandler.speak(CATALAN_MISSIONS.mission7.sheepDonePrompt);
+      }
+    } else if (shape === 'anec') {
+      this.state.ducksPlaced++;
+      if (this.state.currentMissionId === 'farm_animals') {
+        voiceHandler.speak(CATALAN_MISSIONS.mission7.duckDonePrompt);
+      }
+    }
+
+    if (this.state.currentMissionId === 'farm_animals' && !this.state.isMissionCompleted) {
+      this.notifyStateChange();
+      if (this.state.cowsPlaced >= 1 && this.state.sheepsPlaced >= 1 && this.state.ducksPlaced >= 1) {
+        this.completeMission('farm_animals', CATALAN_MISSIONS.mission7.completedPrompt, 'free_build');
         return;
       }
     }

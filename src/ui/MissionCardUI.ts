@@ -9,6 +9,8 @@ export class MissionCardUI {
   private missionManager: MissionManager;
   private onMissionSelect: (id: MissionId) => void;
   private onToolSuggest?: (shape: BrickShape) => void;
+  private onTimeOfDayToggle?: () => 'day' | 'sunset' | 'night';
+  private onBlueprintsToggle?: () => void;
 
   private narratorBubbleText: HTMLElement | null = null;
   private narratorAvatar: HTMLElement | null = null;
@@ -22,11 +24,15 @@ export class MissionCardUI {
     callbacks: {
       onMissionSelect: (id: MissionId) => void;
       onToolSuggest?: (shape: BrickShape) => void;
+      onTimeOfDayToggle?: () => 'day' | 'sunset' | 'night';
+      onBlueprintsToggle?: () => void;
     }
   ) {
     this.missionManager = missionManager;
     this.onMissionSelect = callbacks.onMissionSelect;
     this.onToolSuggest = callbacks.onToolSuggest;
+    this.onTimeOfDayToggle = callbacks.onTimeOfDayToggle;
+    this.onBlueprintsToggle = callbacks.onBlueprintsToggle;
 
     this.container = document.createElement('div');
     this.container.className = 'mission-header-container';
@@ -86,12 +92,21 @@ export class MissionCardUI {
             <button class="m-pill" data-mission="town_festival" title="Missió 6: Viatgers">
               <span>🧑 6. Gent</span>
             </button>
+            <button class="m-pill" data-mission="farm_animals" title="Missió 7: Granja">
+              <span>🐄 7. Granja</span>
+            </button>
             <button class="m-pill" data-mission="free_build" title="Mode Lliure">
               <span>🎨 Lliure</span>
             </button>
           </div>
 
           <div class="system-buttons">
+            <button class="round-btn time-btn" id="btn-toggle-time" title="Canvia l'hora del dia: Dia / Posta / Nit">
+              <span id="time-icon">☀️</span>
+            </button>
+            <button class="round-btn blueprint-btn" id="btn-blueprints" title="Carrega Maquetes i Poblats">
+              <span>📐</span>
+            </button>
             <button class="round-btn mic-btn" id="btn-toggle-mic" title="Micròfon: Digues 'Xiulet' o 'Endavant'!">
               <span class="mic-icon">🎙️</span>
               <span class="mic-pulse"></span>
@@ -112,6 +127,29 @@ export class MissionCardUI {
   }
 
   private bindEvents(): void {
+    // Time of day toggle
+    const timeBtn = this.container.querySelector('#btn-toggle-time');
+    const timeIcon = this.container.querySelector('#time-icon');
+    timeBtn?.addEventListener('click', () => {
+      if (this.onTimeOfDayToggle) {
+        soundSynth.playUIBeep(580);
+        const newTime = this.onTimeOfDayToggle();
+        if (timeIcon) {
+          timeIcon.textContent = newTime === 'day' ? '☀️' :
+                                newTime === 'sunset' ? '🌅' : '🌙';
+        }
+      }
+    });
+
+    // Blueprints modal
+    const bpBtn = this.container.querySelector('#btn-blueprints');
+    bpBtn?.addEventListener('click', () => {
+      soundSynth.playUIBeep(640);
+      if (this.onBlueprintsToggle) {
+        this.onBlueprintsToggle();
+      }
+    });
+
     // Mission Pills
     const pills = this.container.querySelectorAll('.mission-pills .m-pill');
     pills.forEach((pill) => {
@@ -305,6 +343,30 @@ export class MissionCardUI {
             </span>
             <span class="task-pill interactive-task ${lampDone ? 'done' : ''}" data-tool="fanal">
               ${lampDone ? '✅' : '💡'} Fanal: ${lampDone ? 1 : 0}/1
+            </span>
+          </div>
+        </div>
+      `;
+    } else if (state.currentMissionId === 'farm_animals') {
+      const cowDone = state.cowsPlaced >= 1;
+      const sheepDone = state.sheepsPlaced >= 1;
+      const duckDone = state.ducksPlaced >= 1;
+      this.missionContent.innerHTML = `
+        <div class="mission-info">
+          <div class="mission-title-row">
+            <span class="m-badge">🐄</span>
+            <span class="m-title">${CATALAN_MISSIONS.mission7.title}</span>
+            ${state.isMissionCompleted ? '<span class="m-done-badge">COMPLETADA! ⭐</span>' : ''}
+          </div>
+          <div class="task-checklist">
+            <span class="task-pill interactive-task ${cowDone ? 'done' : ''}" data-tool="vaca">
+              ${cowDone ? '✅' : '🐄'} Vaca: ${cowDone ? 1 : 0}/1
+            </span>
+            <span class="task-pill interactive-task ${sheepDone ? 'done' : ''}" data-tool="ovella">
+              ${sheepDone ? '✅' : '🐑'} Ovella: ${sheepDone ? 1 : 0}/1
+            </span>
+            <span class="task-pill interactive-task ${duckDone ? 'done' : ''}" data-tool="anec">
+              ${duckDone ? '✅' : '🦆'} Ànec: ${duckDone ? 1 : 0}/1
             </span>
           </div>
         </div>

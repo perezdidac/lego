@@ -369,6 +369,184 @@ export class SoundSynth {
     osc.start(t);
     osc.stop(t + 0.04);
   }
+
+  /**
+   * Magnetic snap sound when track ports connect
+   */
+  public playMagneticTrackSnap(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    // Pleasant double chime click
+    [
+      { f: 880, delay: 0 },
+      { f: 1320, delay: 0.04 }
+    ].forEach(({ f, delay }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(f, t + delay);
+      gain.gain.setValueAtTime(0.25, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.08);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.08);
+    });
+  }
+
+  /**
+   * Station Bell (Campana d'estació - Ding-Dong)
+   */
+  public playStationBell(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const bellNotes = [
+      { f: 1046.5, time: 0.0 }, // High Ding
+      { f: 880.0, time: 0.35 }  // Lower Dong
+    ];
+
+    bellNotes.forEach(({ f, time }) => {
+      [1.0, 2.0, 2.76, 4.07].forEach((harmonic, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f * harmonic, t + time);
+
+        const amp = 0.3 / (idx + 1);
+        gain.gain.setValueAtTime(0.001, t + time);
+        gain.gain.linearRampToValueAtTime(amp, t + time + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + time + 1.2);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + time);
+        osc.stop(t + time + 1.2);
+      });
+    });
+  }
+
+  /**
+   * Playful Cow Moo (Muuuu!)
+   */
+  public playCowMoo(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.type = 'sawtooth';
+    // Gentle moo pitch contour: rise slightly then glide down
+    osc.frequency.setValueAtTime(130, t);
+    osc.frequency.linearRampToValueAtTime(155, t + 0.25);
+    osc.frequency.exponentialRampToValueAtTime(105, t + 1.1);
+
+    // Vocal formant filter
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(450, t);
+    filter.frequency.linearRampToValueAtTime(600, t + 0.3);
+    filter.frequency.linearRampToValueAtTime(400, t + 1.1);
+    filter.Q.setValueAtTime(4.0, t);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.35, t + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 1.15);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 1.15);
+  }
+
+  /**
+   * Playful Sheep Baa (Beeee!)
+   */
+  public playSheepBaa(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    // Fast warbling vibrato LFO
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.setValueAtTime(7.5, t); // 7.5 Hz vibrato
+    lfoGain.gain.setValueAtTime(12, t);
+    lfo.connect(osc.frequency);
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(260, t);
+    osc.frequency.exponentialRampToValueAtTime(220, t + 0.85);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, t);
+    filter.Q.setValueAtTime(3.5, t);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.32, t + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    lfo.start(t);
+    osc.start(t);
+    lfo.stop(t + 0.9);
+    osc.stop(t + 0.9);
+  }
+
+  /**
+   * Playful Duck Quack (Quac-quac!)
+   */
+  public playDuckQuack(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    [0.0, 0.22].forEach((offset, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      const baseFreq = idx === 0 ? 340 : 310;
+      osc.frequency.setValueAtTime(baseFreq, t + offset);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, t + offset + 0.16);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1100, t + offset);
+      filter.Q.setValueAtTime(5.0, t + offset);
+
+      gain.gain.setValueAtTime(0.001, t + offset);
+      gain.gain.linearRampToValueAtTime(0.28, t + offset + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.18);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t + offset);
+      osc.stop(t + offset + 0.18);
+    });
+  }
 }
 
 export const soundSynth = new SoundSynth();

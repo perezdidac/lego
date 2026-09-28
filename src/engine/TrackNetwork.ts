@@ -538,4 +538,138 @@ export class TrackNetwork {
     const isAtBridgeGap = Math.abs(position.z - 15) < 2.0 && Math.abs(position.x) < 2.5;
     return !isAtBridgeGap;
   }
+
+  /**
+   * Helper defining connection ports for each track piece shape in local coordinates
+   */
+  public static getShapeLocalPorts(shape: string): { pos: THREE.Vector3; dir: THREE.Vector3 }[] {
+    if (shape === 'track_straight_long') {
+      return [
+        { pos: new THREE.Vector3(0, 0, 4.0), dir: new THREE.Vector3(0, 0, 1) },
+        { pos: new THREE.Vector3(0, 0, -4.0), dir: new THREE.Vector3(0, 0, -1) }
+      ];
+    } else if (shape === 'track_curve_right') {
+      return [
+        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) },
+        { pos: new THREE.Vector3(2.0, 0, 0.0), dir: new THREE.Vector3(1, 0, 0) }
+      ];
+    } else if (shape === 'track_curve_left' || shape === 'track_curve') {
+      return [
+        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) },
+        { pos: new THREE.Vector3(-2.0, 0, 0.0), dir: new THREE.Vector3(-1, 0, 0) }
+      ];
+    } else if (shape === 'track_crossing') {
+      return [
+        { pos: new THREE.Vector3(0, 0, 2.0), dir: new THREE.Vector3(0, 0, 1) },
+        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) },
+        { pos: new THREE.Vector3(2.0, 0, 0.0), dir: new THREE.Vector3(1, 0, 0) },
+        { pos: new THREE.Vector3(-2.0, 0, 0.0), dir: new THREE.Vector3(-1, 0, 0) }
+      ];
+    } else if (shape === 'track_station') {
+      return [
+        { pos: new THREE.Vector3(-1.0, 0, 2.0), dir: new THREE.Vector3(0, 0, 1) },
+        { pos: new THREE.Vector3(-1.0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) }
+      ];
+    } else if (shape === 'track_buffer') {
+      return [
+        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) }
+      ];
+    } else {
+      // track_straight (length 4)
+      return [
+        { pos: new THREE.Vector3(0, 0, 2.0), dir: new THREE.Vector3(0, 0, 1) },
+        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) }
+      ];
+    }
+  }
+
+  /**
+   * Magnetic snap calculation: if candidate track is near an open track port,
+   * snaps position and aligns rotation to seamlessly continue the railway!
+   */
+  public findMagneticTrackSnap(
+    candidateShape: string,
+    pointerWorldPos: THREE.Vector3
+  ): { position: THREE.Vector3; rotationY: number } | null {
+    if (this.customTracks.length === 0) return null;
+
+    // 1. Gather all ports of placed tracks in world space
+    const placedPorts: { pos: THREE.Vector3; dir: THREE.Vector3 }[] = [];
+    for (const t of this.customTracks) {
+      const localPorts = TrackNetwork.getShapeLocalPorts(t.shape);
+      const cosR = Math.cos(t.rotationY);
+      const sinR = Math.sin(t.rotationY);
+      for (const lp of localPorts) {
+        const wx = t.position.x + (lp.pos.x * cosR + lp.pos.z * sinR);
+        const wz = t.position.z + (-lp.pos.x * sinR + lp.pos.z * cosR);
+        const dx = lp.dir.x * cosR + lp.dir.z * sinR;
+        const dz = -lp.dir.x * sinR + lp.dir.z * cosR;
+        placedPorts.push({
+          pos: new THREE.Vector3(wx, 0, wz),
+          dir: new THREE.Vector3(dx, 0, dz).normalize()
+        });
+      }
+    }
+
+    // 2. Filter for open ports (not connected to another port within 0.8 units)
+    const openPorts: { pos: THREE.Vector3; dir: THREE.Vector3 }[] = [];
+    for (let i = 0; i < placedPorts.length; i++) {
+      let isConnected = false;
+      for (let j = 0; j < placedPorts.length; j++) {
+        if (i !== j && placedPorts[i].pos.distanceTo(placedPorts[j].pos) < 0.8) {
+          isConnected = true;
+          break;
+        }
+      }
+      if (!isConnected) {
+        openPorts.push(placedPorts[i]);
+      }
+    }
+
+    if (openPorts.length === 0) return null;
+
+    // 3. Test open ports within 3.6 units of pointerWorldPos
+    const candLocalPorts = TrackNetwork.getShapeLocalPorts(candidateShape);
+    const candidateRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+
+    let bestResult: { position: THREE.Vector3; rotationY: number } | null = null;
+    let bestDist = 3.6;
+
+    for (const openPort of openPorts) {
+      const distToPort = pointerWorldPos.distanceTo(openPort.pos);
+      if (distToPort > 4.2) continue;
+
+      for (const rot of candidateRotations) {
+        const cosR = Math.cos(rot);
+        const sinR = Math.sin(rot);
+
+        for (const clp of candLocalPorts) {
+          // Outward normal of candidate port transformed to world
+          const candDirX = clp.dir.x * cosR + clp.dir.z * sinR;
+          const candDirZ = -clp.dir.x * sinR + clp.dir.z * cosR;
+          const dot = candDirX * openPort.dir.x + candDirZ * openPort.dir.z;
+
+          // Ports connect when their outward normals point toward each other (dot ~ -1.0)
+          if (dot < -0.85) {
+            // Center of candidate piece
+            const offX = clp.pos.x * cosR + clp.pos.z * sinR;
+            const offZ = -clp.pos.x * sinR + clp.pos.z * cosR;
+            const candPosX = openPort.pos.x - offX;
+            const candPosZ = openPort.pos.z - offZ;
+
+            const dist = pointerWorldPos.distanceTo(new THREE.Vector3(candPosX, 0, candPosZ));
+            if (dist < bestDist) {
+              bestDist = dist;
+              bestResult = {
+                position: new THREE.Vector3(candPosX, 0, candPosZ),
+                rotationY: rot
+              };
+            }
+          }
+        }
+      }
+    }
+
+    return bestResult;
+  }
 }

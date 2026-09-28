@@ -76,6 +76,10 @@ export class TrainControlsUI {
             </button>
           </div>
 
+          <button class="hud-pill bell-pill" id="btn-station-bell" title="Campana d'Estació">
+            <span>🔔 Campana</span>
+          </button>
+
           <button class="hud-pill hud-exit-btn" id="btn-back-to-build" title="Tornar a construir">
             <span>🧱 Mode Construcció</span>
           </button>
@@ -254,6 +258,15 @@ export class TrainControlsUI {
       soundSynth.playUIBeep(450);
       this.trainActor.setThrottle(0);
       this.onSwitchToBuild();
+    });
+
+    // Station Bell
+    const bellBtn = this.container.querySelector('#btn-station-bell');
+    bellBtn?.addEventListener('click', () => {
+      soundSynth.playStationBell();
+      voiceHandler.speak("Ding-dong! Campana d'estació!");
+      bellBtn.classList.add('active');
+      setTimeout(() => bellBtn.classList.remove('active'), 600);
     });
 
     this.speedGaugeValue = this.container.querySelector('#speed-value');

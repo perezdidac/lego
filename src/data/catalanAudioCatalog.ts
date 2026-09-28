@@ -157,6 +157,18 @@ export const CATALAN_MISSIONS = {
     completedPrompt: 'Visca! Quina gran festa a l\'estació! Tots els passatgers estan a punt per viatjar!',
     requiredPassengers: 2,
     requiredLamps: 1
+  },
+  mission7: {
+    id: 'farm_animals',
+    title: 'Missió 7: Els Animals de Granja',
+    subtitle: 'Posa una vaca, una ovella i un ànec!',
+    badge: '🐄',
+    introPrompt: 'Visitem els animals de la granja! Tria "Natura" i posa una vaca, una ovelleta i un ànec!',
+    cowDonePrompt: 'Muuuu! La vaca de la granja diu hola!',
+    sheepDonePrompt: 'Beeee! Quina ovelleta de llana tan suau!',
+    duckDonePrompt: 'Quac-quac! L\'ànec neda content pel riu!',
+    completedPrompt: 'Visca la granja! Tots els animals estan feliços al costat de les vies del tren!',
+    targetItems: ['vaca', 'ovella', 'anec']
   }
 };
 

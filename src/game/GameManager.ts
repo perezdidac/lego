@@ -7,7 +7,9 @@ import { MissionManager, type MissionId } from './MissionManager';
 import { PaletteUI } from '../ui/PaletteUI';
 import { TrainControlsUI } from '../ui/TrainControlsUI';
 import { MissionCardUI } from '../ui/MissionCardUI';
+import { BlueprintsModalUI } from '../ui/BlueprintsModalUI';
 import { voiceHandler } from '../engine/VoiceHandler';
+import { soundSynth } from '../engine/SoundSynth';
 
 export type GameMode = 'BUILD' | 'DRIVE';
 
@@ -23,6 +25,7 @@ export class GameManager {
   private paletteUI: PaletteUI;
   private trainControlsUI: TrainControlsUI;
   public readonly missionCardUI: MissionCardUI;
+  private blueprintsModalUI: BlueprintsModalUI;
 
   private currentMode: GameMode = 'BUILD';
   private isDeleteMode: boolean = false;
@@ -67,6 +70,29 @@ export class GameManager {
     uiLayer.className = 'game-ui-layer';
     container.appendChild(uiLayer);
 
+    // Blueprints Modal UI
+    this.blueprintsModalUI = new BlueprintsModalUI(document.body, {
+      onSelectBlueprint: (bp) => {
+        this.gridSystem.clearAllBricks();
+        for (const b of bp.bricks) {
+          const y = b.gridY * 1.2;
+          this.gridSystem.placeBrickDirect(
+            b.shape,
+            b.colorHex,
+            b.gridX,
+            y,
+            b.gridZ,
+            b.gridY,
+            b.rotationY
+          );
+        }
+        this.gridSystem.saveToStorage();
+      },
+      onClearWorld: () => {
+        this.gridSystem.clearAllBricks();
+      }
+    });
+
     // Top Mission Card & Catalan Narrator Header (sits at top of screen)
     this.missionCardUI = new MissionCardUI(uiLayer, this.missionManager, {
       onMissionSelect: (id: MissionId) => {
@@ -75,6 +101,20 @@ export class GameManager {
       onToolSuggest: (shape) => {
         this.paletteUI.selectShape(shape);
         this.gridSystem.setToolShape(shape);
+      },
+      onTimeOfDayToggle: () => {
+        const newTime = this.sceneController.cycleTimeOfDay();
+        if (newTime === 'day') {
+          voiceHandler.speak('Bon dia! Fa un sol radiant!');
+        } else if (newTime === 'sunset') {
+          voiceHandler.speak('La posta de sol! Quins colors tan bonics!');
+        } else {
+          voiceHandler.speak('Bona nit! Mira les estrelles i els fanals brillants!');
+        }
+        return newTime;
+      },
+      onBlueprintsToggle: () => {
+        this.blueprintsModalUI.open();
       }
     });
 
@@ -208,7 +248,19 @@ export class GameManager {
             const placed = this.gridSystem.placeCurrentBrick();
             if (placed) {
               this.missionManager.handlePiecePlaced(placed.shape);
+            } else {
+              // Tap on existing piece: animals, props, minifigures interact!
+              const hit = this.gridSystem.interactWithBrickAt(this.pointerNDC);
+              if (hit) {
+                this.handleBrickInteraction(hit.shape);
+              }
             }
+          }
+        } else if (this.currentMode === 'DRIVE') {
+          // In Conductor Mode, tapping on animals or props plays their sounds!
+          const hit = this.gridSystem.interactWithBrickAt(this.pointerNDC);
+          if (hit) {
+            this.handleBrickInteraction(hit.shape);
           }
         }
       }
@@ -238,6 +290,49 @@ export class GameManager {
         }
       }
     });
+  }
+
+  private handleBrickInteraction(shape: string): void {
+    switch (shape) {
+      case 'vaca':
+        soundSynth.playCowMoo();
+        voiceHandler.speak('Muuuu! Hola vaqueta bonica!');
+        break;
+      case 'ovella':
+        soundSynth.playSheepBaa();
+        voiceHandler.speak('Beeee! Sóc una ovelleta suau!');
+        break;
+      case 'anec':
+        soundSynth.playDuckQuack();
+        voiceHandler.speak('Quac-quac! Cuac, cuac!');
+        break;
+      case 'rellotge':
+        soundSynth.playStationBell();
+        voiceHandler.speak('Ding-dong! Són les tres en punt!');
+        break;
+      case 'minifigure':
+        soundSynth.playBrickSnap(1.4);
+        voiceHandler.speak('Hola maquinista! Bon viatge en tren!');
+        break;
+      case 'hidrant':
+        soundSynth.playBrickSnap(1.6);
+        voiceHandler.speak('Fssshh! Aigua per als bombers!');
+        break;
+      case 'senyera':
+        voiceHandler.speak('Visca! La bandera catalana ondeja amb alegria!');
+        break;
+      case 'tree_apple':
+        soundSynth.playBrickSnap(1.2);
+        voiceHandler.speak('Pomes vermelles i dolces del nostre jardí!');
+        break;
+      case 'track_station':
+        soundSynth.playStationBell();
+        voiceHandler.speak('Atenció passatgers, el tren arriba a l\'estació!');
+        break;
+      default:
+        soundSynth.playBrickSnap(1.1);
+        break;
+    }
   }
 
   private tick(): void {

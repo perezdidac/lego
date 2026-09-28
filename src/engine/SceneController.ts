@@ -12,6 +12,8 @@ export class SceneController {
   private dirLight: THREE.DirectionalLight;
   private hemiLight: THREE.HemisphereLight;
   private clouds: THREE.Group = new THREE.Group();
+  private stars: THREE.Points | null = null;
+  private currentTimeOfDay: 'day' | 'sunset' | 'night' = 'day';
 
   // Camera transition state
   public viewMode: CameraViewMode = 'orbit';
@@ -124,6 +126,82 @@ export class SceneController {
     });
 
     this.scene.add(this.clouds);
+
+    // Starfield for night sky
+    const starCount = 350;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0) * 0.45; // Upper dome
+      const r = 65 + Math.random() * 25;
+      starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      starPos[i * 3 + 1] = Math.max(12, r * Math.cos(phi));
+      starPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 1.2,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.95
+    });
+    this.stars = new THREE.Points(starGeo, starMat);
+    this.stars.visible = false;
+    this.scene.add(this.stars);
+  }
+
+  public getTimeOfDay(): 'day' | 'sunset' | 'night' {
+    return this.currentTimeOfDay;
+  }
+
+  public setTimeOfDay(time: 'day' | 'sunset' | 'night'): void {
+    this.currentTimeOfDay = time;
+    if (time === 'day') {
+      this.scene.background = new THREE.Color('#BEE3F8');
+      this.scene.fog = new THREE.FogExp2('#BEE3F8', 0.009);
+      this.dirLight.color.set('#FFF9E6');
+      this.dirLight.intensity = 2.2;
+      this.dirLight.position.set(28, 42, 26);
+      this.hemiLight.color.set('#E0F2FE');
+      this.hemiLight.groundColor.set('#4ADE80');
+      this.hemiLight.intensity = 1.1;
+      this.clouds.visible = true;
+      if (this.stars) this.stars.visible = false;
+    } else if (time === 'sunset') {
+      this.scene.background = new THREE.Color('#FB923C');
+      this.scene.fog = new THREE.FogExp2('#F97316', 0.010);
+      this.dirLight.color.set('#FFAA44');
+      this.dirLight.intensity = 2.0;
+      this.dirLight.position.set(38, 16, 20);
+      this.hemiLight.color.set('#FDBA74');
+      this.hemiLight.groundColor.set('#78350F');
+      this.hemiLight.intensity = 0.95;
+      this.clouds.visible = true;
+      if (this.stars) this.stars.visible = false;
+    } else {
+      // Night
+      this.scene.background = new THREE.Color('#0F172A');
+      this.scene.fog = new THREE.FogExp2('#0F172A', 0.011);
+      this.dirLight.color.set('#94A3B8');
+      this.dirLight.intensity = 0.6;
+      this.dirLight.position.set(-20, 36, -20);
+      this.hemiLight.color.set('#38BDF8');
+      this.hemiLight.groundColor.set('#0F172A');
+      this.hemiLight.intensity = 0.4;
+      this.clouds.visible = false;
+      if (this.stars) this.stars.visible = true;
+    }
+  }
+
+  public cycleTimeOfDay(): 'day' | 'sunset' | 'night' {
+    const next = this.currentTimeOfDay === 'day' ? 'sunset' :
+                 this.currentTimeOfDay === 'sunset' ? 'night' : 'day';
+    this.setTimeOfDay(next);
+    return next;
   }
 
   public setViewMode(mode: CameraViewMode): void {

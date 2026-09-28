@@ -39,6 +39,7 @@ export class GridSystem {
   // Bridge callback
   private onBridgeGapFilled?: (slotIndex: number, brick: THREE.Group) => void;
   private trackNetwork: TrackNetwork | null = null;
+  private wasMagneticSnapped: boolean = false;
 
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     this.scene = scene;
@@ -275,6 +276,18 @@ export class GridSystem {
       case 'senyera':
         group = BrickFactory.createFlagpoleSenyera(isGhost);
         break;
+      case 'vaca':
+        group = BrickFactory.createCow(isGhost);
+        break;
+      case 'ovella':
+        group = BrickFactory.createSheep(isGhost);
+        break;
+      case 'anec':
+        group = BrickFactory.createDuck(isGhost);
+        break;
+      case 'caixa':
+        group = BrickFactory.createCargoBox(colorHex, isGhost);
+        break;
       case 'track_straight':
         group = BrickFactory.createLegoCityStraightTrack(isGhost, 4.0);
         break;
@@ -356,14 +369,39 @@ export class GridSystem {
     const effWidth = isRotated ? def.depth : def.width;
     const effDepth = isRotated ? def.width : def.depth;
 
-    // Grid Snap along X and Z, with Smart Bridge Snap Assist for kids!
+    // Grid Snap along X and Z, with Magnetic Track Snap & Smart Bridge Snap Assist for kids!
     let snapX = 0;
     let snapZ = 0;
     let snapY = 0;
     let layer = 0;
 
-    const isNearBridge = Math.abs(point.z - 15) < 2.2 && Math.abs(point.x) < 3.6;
-    if (isNearBridge) {
+    let isMagneticTrackSnapped = false;
+    if (this.currentShape.startsWith('track_') && this.trackNetwork) {
+      const magneticSnap = this.trackNetwork.findMagneticTrackSnap(this.currentShape, point);
+      if (magneticSnap) {
+        snapX = magneticSnap.position.x;
+        snapZ = magneticSnap.position.z;
+        snapY = 0;
+        layer = 0;
+        if (this.currentRotation !== magneticSnap.rotationY) {
+          this.currentRotation = magneticSnap.rotationY;
+        }
+        isMagneticTrackSnapped = true;
+        if (!this.wasMagneticSnapped) {
+          soundSynth.playMagneticTrackSnap();
+          this.wasMagneticSnapped = true;
+        }
+      }
+    }
+
+    if (!isMagneticTrackSnapped) {
+      this.wasMagneticSnapped = false;
+    }
+
+    const isNearBridge = !isMagneticTrackSnapped && Math.abs(point.z - 15) < 2.2 && Math.abs(point.x) < 3.6;
+    if (isMagneticTrackSnapped) {
+      // Already snapped to exact track alignment
+    } else if (isNearBridge) {
       const bridgeSlots = [-2.0, 0.0, 2.0];
       let bestSlot = bridgeSlots[0];
       let bestDist = 999;
@@ -462,47 +500,37 @@ export class GridSystem {
   }
 
   /**
-   * Place brick at current snapped location
+   * Place brick directly at specified coordinate (used by player and blueprints)
    */
-  public placeCurrentBrick(): PlacedBrick | null {
-    if (!this.lastSnapCoord || !this.currentGhostValid) {
-      return null;
-    }
-
-    const { x, y, z, layer } = this.lastSnapCoord;
-    const def = BRICK_DEFS[this.currentShape] || { width: 2, depth: 2, heightUnits: 1 };
-
-    const brickGroup = this.instantiateShape(this.currentShape, this.currentColor, false);
+  public placeBrickDirect(
+    shape: BrickShape,
+    colorHex: string,
+    x: number,
+    y: number,
+    z: number,
+    layer: number,
+    rotationY: number
+  ): PlacedBrick {
+    const def = BRICK_DEFS[shape] || { width: 2, depth: 2, heightUnits: 1 };
+    const brickGroup = this.instantiateShape(shape, colorHex, false);
     brickGroup.position.set(x, y, z);
-    brickGroup.rotation.y = this.currentRotation;
-
-    // Tactile placement sound
-    soundSynth.playBrickSnap(1.0 + layer * 0.08);
-
-    // Squash-and-stretch micro-animation
-    brickGroup.scale.set(1.12, 0.8, 1.12);
-    this.animatedBricks.push({
-      mesh: brickGroup,
-      time: 0,
-      duration: 0.22
-    });
+    brickGroup.rotation.y = rotationY;
 
     this.scene.add(brickGroup);
     this.interactableMeshes.push(brickGroup);
 
-    // Register occupancy across all vertical layers the piece spans
     const placed: PlacedBrick = {
       id: `brick_${Date.now()}_${Math.random()}`,
-      shape: this.currentShape,
-      colorHex: this.currentColor,
+      shape,
+      colorHex,
       gridX: x,
       gridY: layer,
       gridZ: z,
-      rotationY: this.currentRotation,
+      rotationY,
       mesh: brickGroup
     };
 
-    const isRotated = Math.round(this.currentRotation / (Math.PI / 2)) % 2 !== 0;
+    const isRotated = Math.round(rotationY / (Math.PI / 2)) % 2 !== 0;
     const effWidth = isRotated ? def.depth : def.width;
     const effDepth = isRotated ? def.width : def.depth;
     const heightLayers = Math.max(1, Math.round(def.heightUnits || 1));
@@ -518,32 +546,129 @@ export class GridSystem {
 
     this.placedBricks.push(placed);
 
-    // Register Lego City modular track with TrackNetwork
-    if (this.currentShape.startsWith('track_') && this.trackNetwork) {
+    if (shape.startsWith('track_') && this.trackNetwork) {
       this.trackNetwork.registerCustomTrack({
         id: placed.id,
         position: new THREE.Vector3(x, y, z),
-        rotationY: this.currentRotation,
-        shape: this.currentShape,
+        rotationY,
+        shape,
         mesh: brickGroup
       });
     }
 
+    return placed;
+  }
+
+  /**
+   * Place brick at current snapped location
+   */
+  public placeCurrentBrick(): PlacedBrick | null {
+    if (!this.lastSnapCoord || !this.currentGhostValid) {
+      return null;
+    }
+
+    const { x, y, z, layer } = this.lastSnapCoord;
+
+    const placed = this.placeBrickDirect(
+      this.currentShape,
+      this.currentColor,
+      x,
+      y,
+      z,
+      layer,
+      this.currentRotation
+    );
+
+    // Tactile placement sound
+    soundSynth.playBrickSnap(1.0 + layer * 0.08);
+
+    // Squash-and-stretch micro-animation
+    placed.mesh.scale.set(1.12, 0.8, 1.12);
+    this.animatedBricks.push({
+      mesh: placed.mesh,
+      time: 0,
+      duration: 0.22
+    });
+
     // Check if placement filled a bridge slot in Mission 1!
-    // Bridge gap is at Z = 15, X in [-2.0, 0, 2.0]
     if (Math.abs(z - 15) < 1.5) {
       const slotIndex = Math.abs(x - (-2.0)) < 0.8 ? 0 :
                         Math.abs(x - 0.0) < 0.8 ? 1 :
                         Math.abs(x - 2.0) < 0.8 ? 2 : -1;
       if (slotIndex !== -1 && this.onBridgeGapFilled) {
-        this.onBridgeGapFilled(slotIndex, brickGroup);
+        this.onBridgeGapFilled(slotIndex, placed.mesh);
       }
     }
 
     // Update ghost validation
     this.updateGhostMesh();
+    this.saveToStorage();
 
     return placed;
+  }
+
+  /**
+   * Clear all placed bricks from the scene
+   */
+  public clearAllBricks(): void {
+    for (const b of this.placedBricks) {
+      if (b.shape.startsWith('track_') && this.trackNetwork) {
+        this.trackNetwork.unregisterCustomTrack(b.mesh);
+      }
+      this.scene.remove(b.mesh);
+    }
+    this.placedBricks = [];
+    this.gridOccupancy.clear();
+    this.interactableMeshes = [this.baseplate!].filter(Boolean);
+    try {
+      localStorage.removeItem('blockstory_catala_save');
+    } catch {
+      // ignore
+    }
+    soundSynth.playBrickRemove();
+  }
+
+  public saveToStorage(): void {
+    try {
+      const data = this.placedBricks.map(b => ({
+        shape: b.shape,
+        colorHex: b.colorHex,
+        gridX: b.gridX,
+        gridY: b.gridY,
+        gridZ: b.gridZ,
+        rotationY: b.rotationY
+      }));
+      localStorage.setItem('blockstory_catala_save', JSON.stringify(data));
+    } catch {
+      // ignore
+    }
+  }
+
+  public loadFromStorage(): boolean {
+    try {
+      const saved = localStorage.getItem('blockstory_catala_save');
+      if (!saved) return false;
+      const data = JSON.parse(saved);
+      if (Array.isArray(data) && data.length > 0) {
+        this.clearAllBricks();
+        for (const item of data) {
+          const y = item.gridY * BrickFactory.BRICK_HEIGHT;
+          this.placeBrickDirect(
+            item.shape,
+            item.colorHex,
+            item.gridX,
+            y,
+            item.gridZ,
+            item.gridY,
+            item.rotationY
+          );
+        }
+        return true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
   }
 
   /**
@@ -581,6 +706,7 @@ export class GridSystem {
       }
     }
 
+    this.saveToStorage();
     soundSynth.playBrickRemove();
     return true;
   }
@@ -603,6 +729,7 @@ export class GridSystem {
       }
     }
 
+    this.saveToStorage();
     soundSynth.playBrickRemove();
     return true;
   }
@@ -637,5 +764,33 @@ export class GridSystem {
 
   public getGhostPosition(): THREE.Vector3 | null {
     return this.ghostGroup && this.ghostGroup.visible ? this.ghostGroup.position : null;
+  }
+
+  /**
+   * Tap / Click to interact with placed bricks (animals, props, minifigures)
+   */
+  public interactWithBrickAt(ndc: THREE.Vector2): { shape: BrickShape; mesh: THREE.Group } | null {
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.placedBricks.map(b => b.mesh), true);
+    if (intersects.length === 0) return null;
+
+    let obj: THREE.Object3D | null = intersects[0].object;
+    while (obj && !this.placedBricks.some(b => b.mesh === obj)) {
+      obj = obj.parent;
+    }
+    if (!obj) return null;
+
+    const brick = this.placedBricks.find(b => b.mesh === obj);
+    if (!brick) return null;
+
+    // Trigger bouncy elastic animation on the tapped piece!
+    brick.mesh.scale.set(1.22, 0.78, 1.22);
+    this.animatedBricks.push({
+      mesh: brick.mesh,
+      time: 0,
+      duration: 0.32
+    });
+
+    return { shape: brick.shape, mesh: brick.mesh };
   }
 }

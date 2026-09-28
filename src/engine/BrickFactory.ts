@@ -45,7 +45,11 @@ export type BrickShape =
   | 'track_curve_left'
   | 'track_crossing'
   | 'track_buffer'
-  | 'track_station';
+  | 'track_station'
+  | 'vaca'
+  | 'ovella'
+  | 'anec'
+  | 'caixa';
 
 export interface BrickDefinition {
   width: number; // in studs along X
@@ -87,6 +91,7 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   'xemeneia': { width: 2, depth: 2, heightUnits: 2, nameCatalan: 'Xemeneia amb Fum', category: 'casa', icon: '💨 Xemeneia' },
   'fanal': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Fanal de Carrer', category: 'casa', icon: '💡 Fanal' },
   'barril': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Barril de Càrrega', category: 'casa', icon: '🛢️ Barril' },
+  'caixa': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Caixa de Fusta', category: 'casa', icon: '📦 Caixa' },
 
   // Lego City Modular Tracks
   'track_straight': { width: 2, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Recta (4)', category: 'vies', icon: '🛤️ Recta' },
@@ -98,12 +103,15 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   'track_buffer': { width: 2, depth: 4, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
   'track_station': { width: 4, depth: 4, heightUnits: 2.0, nameCatalan: 'Andana d\'Estació', category: 'vies', icon: '🚉 Andana' },
 
-  // Nature & Minifigures
+  // Nature & Animals & Minifigures
   'tree_pine': { width: 2, depth: 2, heightUnits: 3, nameCatalan: 'Avet del Bosc', category: 'natura', icon: '🌲 Avet' },
   'tree_apple': { width: 3, depth: 3, heightUnits: 3, nameCatalan: 'Pomera Fruitera', category: 'natura', icon: '🌳 Pomera' },
   'arbust': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Arbust Verd', category: 'natura', icon: '🌿 Arbust' },
   'flower': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Flor Bonica', category: 'natura', icon: '🌸 Flor' },
   'minifigure': { width: 1, depth: 1, heightUnits: 2, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' },
+  'vaca': { width: 2, depth: 3, heightUnits: 2, nameCatalan: 'Vaca de Granja', category: 'natura', icon: '🐄 Vaca' },
+  'ovella': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Ovelleta Suau', category: 'natura', icon: '🐑 Ovelleta' },
+  'anec': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Ànec Groc', category: 'natura', icon: '🦆 Ànec' },
   'senyal_tren': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Senyal de Pas a Nivell', category: 'natura', icon: '⚠️ Senyal' },
   'hidrant': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Boca d\'Incendis', category: 'natura', icon: '🧯 Hidrant' },
   'banc': { width: 2, depth: 1, heightUnits: 1, nameCatalan: 'Banc de Fusta', category: 'natura', icon: '🪑 Banc' },
@@ -1598,6 +1606,239 @@ export class BrickFactory {
     group.add(flagGroup);
 
     group.userData = { type: 'senyera', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Lego Toy Farm Cow (Vaca de Granja)
+   */
+  public static createCow(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const whiteMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#F4F4F4', 0.25, 0.05);
+    const blackMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#1B1B1B', 0.25, 0.05);
+    const pinkMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#F472B6', 0.25, 0.05);
+    const hornMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#FAC80A', 0.2, 0.3);
+    const h = 2 * this.BRICK_HEIGHT; // 2.4 units
+
+    // Body
+    const bodyGeo = new THREE.BoxGeometry(1.6, 1.1, 2.6);
+    const body = new THREE.Mesh(bodyGeo, whiteMat);
+    body.position.set(0, 1.25, 0);
+    body.castShadow = !isGhost;
+    group.add(body);
+
+    // Black spots on cow body
+    if (!isGhost) {
+      const spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.05), blackMat);
+      spot1.position.set(0.81, 1.3, 0.3);
+      const spot2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.05), blackMat);
+      spot2.position.set(-0.81, 1.2, -0.4);
+      const spotTop = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.05, 0.8), blackMat);
+      spotTop.position.set(0.2, 1.81, -0.2);
+      group.add(spot1, spot2, spotTop);
+    }
+
+    // 4 sturdy legs with hooves
+    const legGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.7, 8);
+    const hoofGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.15, 8);
+    [-0.55, 0.55].forEach((x) => {
+      [-0.9, 0.9].forEach((z) => {
+        const leg = new THREE.Mesh(legGeo, whiteMat);
+        leg.position.set(x, 0.45, z);
+        leg.castShadow = !isGhost;
+        const hoof = new THREE.Mesh(hoofGeo, blackMat);
+        hoof.position.set(x, 0.075, z);
+        group.add(leg, hoof);
+      });
+    });
+
+    // Head
+    const headGeo = new THREE.BoxGeometry(1.0, 0.9, 1.1);
+    const head = new THREE.Mesh(headGeo, whiteMat);
+    head.position.set(0, 1.7, 1.5);
+    head.castShadow = !isGhost;
+
+    // Pink muzzle
+    const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.42, 0.45), pinkMat);
+    muzzle.position.set(0, 1.5, 2.05);
+
+    // Two little black eyes
+    const eyeGeo = new THREE.SphereGeometry(0.06, 6, 6);
+    const eyeL = new THREE.Mesh(eyeGeo, blackMat);
+    eyeL.position.set(-0.35, 1.85, 1.95);
+    const eyeR = new THREE.Mesh(eyeGeo, blackMat);
+    eyeR.position.set(0.35, 1.85, 1.95);
+
+    // Two little horns
+    const hornGeo = new THREE.ConeGeometry(0.1, 0.35, 6);
+    const hornL = new THREE.Mesh(hornGeo, hornMat);
+    hornL.position.set(-0.4, 2.25, 1.4);
+    hornL.rotation.z = -0.3;
+    const hornR = new THREE.Mesh(hornGeo, hornMat);
+    hornR.position.set(0.4, 2.25, 1.4);
+    hornR.rotation.z = 0.3;
+
+    // Floppy ears
+    const earGeo = new THREE.BoxGeometry(0.35, 0.12, 0.15);
+    const earL = new THREE.Mesh(earGeo, whiteMat);
+    earL.position.set(-0.6, 1.95, 1.3);
+    earL.rotation.z = -0.2;
+    const earR = new THREE.Mesh(earGeo, whiteMat);
+    earR.position.set(0.6, 1.95, 1.3);
+    earR.rotation.z = 0.2;
+
+    group.add(head, muzzle, eyeL, eyeR, hornL, hornR, earL, earR);
+
+    // Wagging tail
+    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.8, 6), whiteMat);
+    tail.position.set(0, 1.2, -1.35);
+    tail.rotation.x = 0.3;
+    const tailTip = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), blackMat);
+    tailTip.position.set(0, 0.8, -1.5);
+    group.add(tail, tailTip);
+
+    // 2 top studs on back for minifigure rider
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-0.4, 0.4].forEach((x) => {
+      const stud = new THREE.Mesh(studGeo, whiteMat);
+      stud.position.set(x, 1.8 + this.STUD_HEIGHT / 2, 0);
+      group.add(stud);
+    });
+
+    group.userData = { type: 'vaca', widthStuds: 2, depthStuds: 3, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Fluffy Lego Toy Sheep (Ovelleta Suau)
+   */
+  public static createSheep(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const woolMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#F4F4F4', 0.5, 0.0);
+    const blackMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#1B1B1B', 0.25, 0.05);
+    const h = this.BRICK_HEIGHT; // 1.2 units
+
+    // Bumpy fluffy wool body
+    const body = new THREE.Mesh(new THREE.DodecahedronGeometry(0.7, 1), woolMat);
+    body.position.set(0, 0.75, 0);
+    body.scale.set(1.1, 0.9, 1.3);
+    body.castShadow = !isGhost;
+    group.add(body);
+
+    // 4 little black legs
+    const legGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.45, 6);
+    [-0.38, 0.38].forEach((x) => {
+      [-0.45, 0.45].forEach((z) => {
+        const leg = new THREE.Mesh(legGeo, blackMat);
+        leg.position.set(x, 0.22, z);
+        group.add(leg);
+      });
+    });
+
+    // Cute black face
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), blackMat);
+    head.position.set(0, 0.85, 0.85);
+    head.scale.set(0.9, 1.0, 1.1);
+
+    // Little ears
+    [-0.28, 0.28].forEach((x) => {
+      const ear = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.1), blackMat);
+      ear.position.set(x, 0.95, 0.78);
+      ear.rotation.z = x > 0 ? -0.3 : 0.3;
+      group.add(ear);
+    });
+
+    // White wool fluff on forehead
+    const fluff = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), woolMat);
+    fluff.position.set(0, 1.1, 0.82);
+
+    group.add(head, fluff);
+
+    group.userData = { type: 'ovella', widthStuds: 2, depthStuds: 2, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Yellow Rubber Duck (Ànec Groc)
+   */
+  public static createDuck(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const yellowMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#FAC80A', 0.2, 0.05);
+    const orangeMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#FF7E14', 0.2, 0.05);
+    const blackMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#1B1B1B', 0.2, 0.05);
+    const h = this.BRICK_HEIGHT;
+
+    // Body
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), yellowMat);
+    body.position.set(0, 0.38, 0);
+    body.scale.set(0.9, 0.7, 1.1);
+    body.castShadow = !isGhost;
+    group.add(body);
+
+    // Upturned tail
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.25, 6), yellowMat);
+    tail.position.set(0, 0.5, -0.42);
+    tail.rotation.x = -0.7;
+    group.add(tail);
+
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 8), yellowMat);
+    head.position.set(0, 0.7, 0.22);
+    group.add(head);
+
+    // Orange flat bill
+    const bill = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.07, 0.24), orangeMat);
+    bill.position.set(0, 0.65, 0.42);
+    group.add(bill);
+
+    // Bead eyes
+    [-0.14, 0.14].forEach((x) => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), blackMat);
+      eye.position.set(x, 0.75, 0.36);
+      group.add(eye);
+    });
+
+    group.userData = { type: 'anec', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 2x2 Wooden Freight Cargo Box (Caixa de Fusta)
+   */
+  public static createCargoBox(colorHex: string = '#8D6E63', isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const woodMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex, 0.5, 0.05);
+    const metalMat = this.getMaterial('#1B1B1B', 0.3, 0.3);
+    const h = this.BRICK_HEIGHT;
+
+    // Box body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.96, h, 1.96), woodMat);
+    body.position.y = h / 2;
+    body.castShadow = !isGhost;
+    group.add(body);
+
+    // Corner metal brackets
+    const bracketGeo = new THREE.BoxGeometry(0.16, h + 0.02, 0.16);
+    [-0.95, 0.95].forEach((x) => {
+      [-0.95, 0.95].forEach((z) => {
+        const bracket = new THREE.Mesh(bracketGeo, metalMat);
+        bracket.position.set(x, h / 2, z);
+        group.add(bracket);
+      });
+    });
+
+    // 4 studs on top
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-0.5, 0.5].forEach((x) => {
+      [-0.5, 0.5].forEach((z) => {
+        const stud = new THREE.Mesh(studGeo, woodMat);
+        stud.position.set(x, h + this.STUD_HEIGHT / 2, z);
+        stud.castShadow = !isGhost;
+        group.add(stud);
+      });
+    });
+
+    group.userData = { type: 'caixa', widthStuds: 2, depthStuds: 2, height: h };
     return group;
   }
 
