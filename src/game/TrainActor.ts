@@ -241,9 +241,28 @@ export class TrainActor {
       }
     }
 
-    // Check bridge passage constraint: if bridge is broken and train is approaching gorge, stop safely!
+    // Check track bounds and bridge passage constraint:
     const nextDistance = this.distance + this.speed * clampedDt;
-    if (!this.trackNetwork.canTrainPassAt(nextDistance) && !this.trackNetwork.isBridgeComplete()) {
+    const isCustom = this.trackNetwork.getActiveRoute() === 'custom';
+    const isLoop = isCustom ? this.trackNetwork.getIsCustomLoop() : true;
+    const totalLen = this.trackNetwork.getTotalLength();
+
+    if (isCustom && !isLoop) {
+      // Linear non-looping track: bounce back gently at track buffer ends!
+      if (nextDistance >= totalLen - 0.6 && this.speed > 0) {
+        this.distance = Math.max(0.2, totalLen - 0.6);
+        this.speed = -this.speed * 0.35;
+        this.throttle = 0;
+        soundSynth.playBrake();
+      } else if (nextDistance <= 0.6 && this.speed < 0) {
+        this.distance = Math.min(totalLen - 0.2, 0.6);
+        this.speed = -this.speed * 0.35;
+        this.throttle = 0;
+        soundSynth.playBrake();
+      } else {
+        this.distance = nextDistance;
+      }
+    } else if (!this.trackNetwork.canTrainPassAt(nextDistance) && !this.trackNetwork.isBridgeComplete()) {
       if (this.speed > 0) {
         this.speed = 0;
         this.throttle = 0;

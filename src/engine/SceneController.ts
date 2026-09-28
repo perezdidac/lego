@@ -23,12 +23,12 @@ export class SceneController {
     // 1. Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#BEE3F8'); // Soft sunny pastel sky
-    this.scene.fog = new THREE.FogExp2('#BEE3F8', 0.012);
+    this.scene.fog = new THREE.FogExp2('#BEE3F8', 0.009); // Clear sunny horizon for larger world
 
     // 2. Camera
     const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.PerspectiveCamera(46, aspect, 0.2, 200);
-    this.camera.position.set(16, 22, 20); // 3/4 isometric view displaying whole landscape!
+    this.camera = new THREE.PerspectiveCamera(46, aspect, 0.2, 250);
+    this.camera.position.set(20, 26, 24); // 3/4 isometric view displaying whole landscape!
 
     // 3. Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -53,23 +53,23 @@ export class SceneController {
     this.controls.minPolarAngle = THREE.MathUtils.degToRad(18); // ~18 deg
     this.controls.maxPolarAngle = THREE.MathUtils.degToRad(78); // ~78 deg
 
-    // Distance bounds
-    this.controls.minDistance = 7;
-    this.controls.maxDistance = 55;
+    // Distance bounds (allows zooming out to admire full 56x56 baseplate!)
+    this.controls.minDistance = 6;
+    this.controls.maxDistance = 80;
 
     // 5. Lighting
     // Directional Sunlight with soft shadow cascade
     this.dirLight = new THREE.DirectionalLight('#FFF9E6', 2.2);
-    this.dirLight.position.set(24, 38, 22);
+    this.dirLight.position.set(28, 42, 26);
     this.dirLight.castShadow = true;
     this.dirLight.shadow.mapSize.width = 2048;
     this.dirLight.shadow.mapSize.height = 2048;
     this.dirLight.shadow.camera.near = 5;
-    this.dirLight.shadow.camera.far = 85;
-    this.dirLight.shadow.camera.left = -26;
-    this.dirLight.shadow.camera.right = 26;
-    this.dirLight.shadow.camera.top = 26;
-    this.dirLight.shadow.camera.bottom = -26;
+    this.dirLight.shadow.camera.far = 110;
+    this.dirLight.shadow.camera.left = -36;
+    this.dirLight.shadow.camera.right = 36;
+    this.dirLight.shadow.camera.top = 36;
+    this.dirLight.shadow.camera.bottom = -36;
     this.dirLight.shadow.bias = -0.0006;
     this.scene.add(this.dirLight);
 

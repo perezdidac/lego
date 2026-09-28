@@ -232,9 +232,9 @@ export class TrainControlsUI {
     const customBtn = this.container.querySelector('#btn-route-custom');
     customBtn?.addEventListener('click', () => {
       const customTracks = this.trackNetwork.getCustomTracks();
-      if (customTracks.length < 2) {
+      if (customTracks.length < 1) {
         soundSynth.playUIBeep(350);
-        voiceHandler.speak('Posa dues o més vies al mode construcció per crear un circuit nou!');
+        voiceHandler.speak('Posa vies al mode construcció per crear el teu circuit!');
         return;
       }
 
@@ -243,7 +243,7 @@ export class TrainControlsUI {
         soundSynth.playUIBeep(680);
         this.currentRoute = 'custom';
         this.trainActor.snapToClosestTrackPoint(customTracks[0].position);
-        voiceHandler.speak('Tren a les teves vies Lego City! Endavant maquinista!');
+        voiceHandler.speak('Tren a les teves vies! Endavant maquinista!');
         this.updateRouteUI();
       }
     });
@@ -287,12 +287,21 @@ export class TrainControlsUI {
     // Update custom tracks count badge
     if (this.routeCustomText) {
       const count = this.trackNetwork.getCustomTracks().length;
-      this.routeCustomText.textContent = count > 0 ? `⚡ Vies Noves (${count})` : '⚡ Vies Noves';
+      this.routeCustomText.textContent = count > 0 ? `✨ Les Meves Vies (${count})` : '✨ Les Meves Vies';
     }
   }
 
   public setVisible(visible: boolean): void {
     this.container.style.display = visible ? 'block' : 'none';
+    if (visible) {
+      const customTracks = this.trackNetwork.getCustomTracks();
+      if (customTracks.length > 0) {
+        this.currentRoute = 'custom';
+        this.trackNetwork.setRoute('custom');
+        this.trainActor.snapToClosestTrackPoint(customTracks[0].position);
+        this.updateRouteUI();
+      }
+    }
   }
 
   public resetThrottle(): void {

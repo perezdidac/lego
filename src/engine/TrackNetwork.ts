@@ -198,48 +198,223 @@ export class TrackNetwork {
     this.scene.add(this.trackMeshesGroup);
   }
 
+  private isCustomLoop: boolean = false;
+
   /**
    * Register a user-placed Lego City track piece
    */
   public registerCustomTrack(piece: PlacedTrackPieceData): void {
     this.customTracks.push(piece);
     this.rebuildCustomTrackPath();
+    // Default to custom route when user places tracks
+    this.activeRoute = 'custom';
   }
 
   public unregisterCustomTrack(mesh: THREE.Group): void {
     this.customTracks = this.customTracks.filter(t => t.mesh !== mesh);
     this.rebuildCustomTrackPath();
+    if (this.customTracks.length === 0) {
+      this.activeRoute = 'circuit';
+    }
   }
 
   public getCustomTracks(): PlacedTrackPieceData[] {
     return this.customTracks;
   }
 
+  public getIsCustomLoop(): boolean {
+    return this.isCustomLoop;
+  }
+
   /**
-   * Solves a continuous curve connecting user placed track pieces
+   * Topological Track Solver: chains connected track pieces into a continuous curve
    */
   private rebuildCustomTrackPath(): void {
-    if (this.customTracks.length < 2) {
+    if (this.customTracks.length === 0) {
       this.customCurve = null;
       this.customTotalLength = 0;
+      this.isCustomLoop = false;
       return;
     }
 
-    const waypoints: THREE.Vector3[] = [];
-    this.customTracks.forEach((t) => {
-      waypoints.push(new THREE.Vector3(t.position.x, 0.4, t.position.z));
+    interface TrackSegment {
+      piece: PlacedTrackPieceData;
+      portA: THREE.Vector3;
+      portB: THREE.Vector3;
+      waypoints: THREE.Vector3[];
+    }
+
+    const segments: TrackSegment[] = this.customTracks.map((t) => {
+      const localPts: THREE.Vector3[] = [];
+      let lA: THREE.Vector3;
+      let lB: THREE.Vector3;
+
+      if (t.shape === 'track_straight_long') {
+        const halfLen = 4.0;
+        lA = new THREE.Vector3(0, 0.45, -halfLen);
+        lB = new THREE.Vector3(0, 0.45, halfLen);
+        for (let s = -halfLen; s <= halfLen; s += 0.8) {
+          localPts.push(new THREE.Vector3(0, 0.45, s));
+        }
+      } else if (t.shape === 'track_curve_right' || t.shape === 'track_curve') {
+        // Curve Right: R = 2.0, arc from (0, -2) to (2, 0)
+        lA = new THREE.Vector3(0, 0.45, -2.0);
+        lB = new THREE.Vector3(2.0, 0.45, 0.0);
+        for (let i = 0; i <= 8; i++) {
+          const phi = (i / 8) * (Math.PI / 2);
+          const x = 2.0 - 2.0 * Math.cos(phi);
+          const z = -2.0 + 2.0 * Math.sin(phi);
+          localPts.push(new THREE.Vector3(x, 0.45, z));
+        }
+      } else if (t.shape === 'track_curve_left') {
+        // Curve Left: R = 2.0, arc from (0, -2) to (-2, 0)
+        lA = new THREE.Vector3(0, 0.45, -2.0);
+        lB = new THREE.Vector3(-2.0, 0.45, 0.0);
+        for (let i = 0; i <= 8; i++) {
+          const phi = (i / 8) * (Math.PI / 2);
+          const x = -(2.0 - 2.0 * Math.cos(phi));
+          const z = -2.0 + 2.0 * Math.sin(phi);
+          localPts.push(new THREE.Vector3(x, 0.45, z));
+        }
+      } else if (t.shape === 'track_buffer') {
+        lA = new THREE.Vector3(0, 0.45, -2.0);
+        lB = new THREE.Vector3(0, 0.45, 0.8);
+        for (let s = -2.0; s <= 0.8; s += 0.7) {
+          localPts.push(new THREE.Vector3(0, 0.45, s));
+        }
+      } else if (t.shape === 'track_station') {
+        lA = new THREE.Vector3(-1.0, 0.45, -2.0);
+        lB = new THREE.Vector3(-1.0, 0.45, 2.0);
+        for (let s = -2.0; s <= 2.0; s += 0.8) {
+          localPts.push(new THREE.Vector3(-1.0, 0.45, s));
+        }
+      } else {
+        // Default track_straight (length 4) or track_crossing
+        lA = new THREE.Vector3(0, 0.45, -2.0);
+        lB = new THREE.Vector3(0, 0.45, 2.0);
+        for (let s = -2.0; s <= 2.0; s += 0.8) {
+          localPts.push(new THREE.Vector3(0, 0.45, s));
+        }
+      }
+
+      // Transform local points to world space
+      const cosR = Math.cos(t.rotationY);
+      const sinR = Math.sin(t.rotationY);
+      const toWorld = (pt: THREE.Vector3) =>
+        new THREE.Vector3(
+          t.position.x + (pt.x * cosR + pt.z * sinR),
+          pt.y,
+          t.position.z + (-pt.x * sinR + pt.z * cosR)
+        );
+
+      return {
+        piece: t,
+        portA: toWorld(lA),
+        portB: toWorld(lB),
+        waypoints: localPts.map(toWorld)
+      };
     });
 
-    const isClosed = this.customTracks.length >= 4 &&
-      waypoints[0].distanceTo(waypoints[waypoints.length - 1]) < 5.0;
+    if (segments.length === 1) {
+      const pts = segments[0].waypoints;
+      this.customCurve = new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.15);
+      this.customTotalLength = this.customCurve.getLength();
+      this.isCustomLoop = false;
+      return;
+    }
 
-    this.customCurve = new THREE.CatmullRomCurve3(waypoints, isClosed, 'centripetal', 0.2);
+    // Topological Chain Traversal:
+    const visited = new Set<number>();
+    const orderedPoints: THREE.Vector3[] = [];
+
+    // Find a starting segment that is an open end (degree 1), or start at 0
+    let startIdx = 0;
+    let startForward = true;
+
+    for (let i = 0; i < segments.length; i++) {
+      const segA = segments[i];
+      let matchesA = 0;
+      let matchesB = 0;
+      for (let j = 0; j < segments.length; j++) {
+        if (i === j) continue;
+        const segB = segments[j];
+        if (segA.portA.distanceTo(segB.portA) < 1.0 || segA.portA.distanceTo(segB.portB) < 1.0) matchesA++;
+        if (segA.portB.distanceTo(segB.portA) < 1.0 || segA.portB.distanceTo(segB.portB) < 1.0) matchesB++;
+      }
+      if (matchesA === 0 && matchesB > 0) {
+        startIdx = i;
+        startForward = true;
+        break;
+      } else if (matchesB === 0 && matchesA > 0) {
+        startIdx = i;
+        startForward = false;
+        break;
+      }
+    }
+
+    let currentIdx = startIdx;
+    let forward = startForward;
+
+    while (currentIdx !== -1 && !visited.has(currentIdx)) {
+      visited.add(currentIdx);
+      const seg = segments[currentIdx];
+      const pts = forward ? [...seg.waypoints] : [...seg.waypoints].reverse();
+
+      pts.forEach((p) => {
+        if (orderedPoints.length === 0 || orderedPoints[orderedPoints.length - 1].distanceTo(p) > 0.2) {
+          orderedPoints.push(p);
+        }
+      });
+
+      const exitPort = forward ? seg.portB : seg.portA;
+
+      let nextIdx = -1;
+      let nextForward = true;
+      let bestDist = 1.2;
+
+      for (let j = 0; j < segments.length; j++) {
+        if (visited.has(j)) continue;
+        const other = segments[j];
+        const distA = exitPort.distanceTo(other.portA);
+        const distB = exitPort.distanceTo(other.portB);
+
+        if (distA < bestDist) {
+          bestDist = distA;
+          nextIdx = j;
+          nextForward = true;
+        } else if (distB < bestDist) {
+          bestDist = distB;
+          nextIdx = j;
+          nextForward = false;
+        }
+      }
+
+      currentIdx = nextIdx;
+      forward = nextForward;
+    }
+
+    // Check if loop closes back to start
+    let isLoop = false;
+    if (orderedPoints.length >= 4) {
+      const first = orderedPoints[0];
+      const last = orderedPoints[orderedPoints.length - 1];
+      if (first.distanceTo(last) < 1.8) {
+        isLoop = true;
+      }
+    }
+
+    if (orderedPoints.length < 2) {
+      orderedPoints.push(segments[0].portA, segments[0].portB);
+    }
+
+    this.customCurve = new THREE.CatmullRomCurve3(orderedPoints, isLoop, 'centripetal', 0.15);
     this.customTotalLength = this.customCurve.getLength();
+    this.isCustomLoop = isLoop;
   }
 
   public setRoute(route: 'circuit' | 'custom'): boolean {
     if (route === 'custom') {
-      if (!this.customCurve || this.customTracks.length < 2) {
+      if (!this.customCurve || this.customTracks.length < 1) {
         return false;
       }
       this.activeRoute = 'custom';

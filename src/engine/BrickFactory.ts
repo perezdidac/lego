@@ -6,8 +6,14 @@ export type BrickShape =
   | '2x2'
   | '2x3'
   | '2x4'
+  | '1x4'
   | '1x6'
+  | '1x8'
+  | '2x6'
   | '2x8'
+  | 'corner2x2'
+  | 'cyl1x1'
+  | 'cone1x1'
   | 'plate2x2'
   | 'plate4x4'
   | 'slope2x2'
@@ -16,6 +22,10 @@ export type BrickShape =
   | 'finestra'
   | 'porta'
   | 'torre2x2'
+  | 'teulada_con'
+  | 'merlet'
+  | 'tanca'
+  | 'xemeneia'
   | 'fanal'
   | 'barril'
   | 'tree_pine'
@@ -23,10 +33,19 @@ export type BrickShape =
   | 'arbust'
   | 'flower'
   | 'minifigure'
+  | 'senyal_tren'
+  | 'hidrant'
+  | 'banc'
+  | 'rellotge'
+  | 'senyera'
   | 'track_straight'
+  | 'track_straight_long'
   | 'track_curve'
+  | 'track_curve_right'
+  | 'track_curve_left'
   | 'track_crossing'
-  | 'track_buffer';
+  | 'track_buffer'
+  | 'track_station';
 
 export interface BrickDefinition {
   width: number; // in studs along X
@@ -44,8 +63,14 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   '2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x2', category: 'bloc', icon: '🧱 2x2' },
   '2x3': { width: 3, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x3', category: 'bloc', icon: '🧱 2x3' },
   '2x4': { width: 4, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x4', category: 'bloc', icon: '🧱 2x4' },
+  '1x4': { width: 4, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x4', category: 'bloc', icon: '🧱 1x4' },
   '1x6': { width: 6, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x6', category: 'bloc', icon: '🧱 1x6' },
+  '1x8': { width: 8, depth: 1, heightUnits: 1, nameCatalan: 'Viga 1x8', category: 'bloc', icon: '🧱 1x8' },
+  '2x6': { width: 6, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x6', category: 'bloc', icon: '🧱 2x6' },
   '2x8': { width: 8, depth: 2, heightUnits: 1, nameCatalan: 'Viga 2x8', category: 'bloc', icon: '🧱 2x8' },
+  'corner2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Bloc Cantonada', category: 'bloc', icon: '📐 Cantonada' },
+  'cyl1x1': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Cilindre 1x1', category: 'bloc', icon: '⚪ Cilindre' },
+  'cone1x1': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Con 1x1', category: 'bloc', icon: '🔺 Con' },
 
   // House & Architecture
   'plate2x2': { width: 2, depth: 2, heightUnits: 0.33, nameCatalan: 'Rajola Llisa 2x2', category: 'casa', icon: '▫️ Rajola' },
@@ -56,21 +81,34 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   'finestra': { width: 2, depth: 1, heightUnits: 2, nameCatalan: 'Finestra', category: 'casa', icon: '🪟 Finestra' },
   'porta': { width: 2, depth: 1, heightUnits: 4, nameCatalan: 'Porta de Casa', category: 'casa', icon: '🚪 Porta' },
   'torre2x2': { width: 2, depth: 2, heightUnits: 4, nameCatalan: 'Torre Rodona', category: 'casa', icon: '🏰 Torre' },
+  'teulada_con': { width: 2, depth: 2, heightUnits: 2, nameCatalan: 'Teulada Cònica', category: 'casa', icon: '🏰 Teulada' },
+  'merlet': { width: 4, depth: 1, heightUnits: 1, nameCatalan: 'Merlet de Castell', category: 'casa', icon: '🏯 Merlet' },
+  'tanca': { width: 4, depth: 1, heightUnits: 1, nameCatalan: 'Tanca de Jardí', category: 'casa', icon: '🚧 Tanca' },
+  'xemeneia': { width: 2, depth: 2, heightUnits: 2, nameCatalan: 'Xemeneia amb Fum', category: 'casa', icon: '💨 Xemeneia' },
   'fanal': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Fanal de Carrer', category: 'casa', icon: '💡 Fanal' },
   'barril': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Barril de Càrrega', category: 'casa', icon: '🛢️ Barril' },
 
   // Lego City Modular Tracks
-  'track_straight': { width: 4, depth: 2, heightUnits: 0.33, nameCatalan: 'Via Recta Lego City', category: 'vies', icon: '🛤️ Via Recta' },
-  'track_curve': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Corba 45°', category: 'vies', icon: '🔄 Via Corba' },
-  'track_crossing': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Pas a Nivell', category: 'vies', icon: '🚧 Pas a Nivell' },
-  'track_buffer': { width: 2, depth: 2, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
+  'track_straight': { width: 2, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Recta (4)', category: 'vies', icon: '🛤️ Recta' },
+  'track_straight_long': { width: 2, depth: 8, heightUnits: 0.33, nameCatalan: 'Via Llarga (8)', category: 'vies', icon: '🛤️ Llarga' },
+  'track_curve_right': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Corba Dreta 90°', category: 'vies', icon: '↪️ Corba Dreta' },
+  'track_curve_left': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Corba Esquerra 90°', category: 'vies', icon: '↩️ Corba Esq.' },
+  'track_curve': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Corba', category: 'vies', icon: '🔄 Corba' },
+  'track_crossing': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Cruïlla 4 Vies', category: 'vies', icon: '➕ Cruïlla' },
+  'track_buffer': { width: 2, depth: 4, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
+  'track_station': { width: 4, depth: 4, heightUnits: 2.0, nameCatalan: 'Andana d\'Estació', category: 'vies', icon: '🚉 Andana' },
 
   // Nature & Minifigures
   'tree_pine': { width: 2, depth: 2, heightUnits: 3, nameCatalan: 'Avet del Bosc', category: 'natura', icon: '🌲 Avet' },
   'tree_apple': { width: 3, depth: 3, heightUnits: 3, nameCatalan: 'Pomera Fruitera', category: 'natura', icon: '🌳 Pomera' },
   'arbust': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Arbust Verd', category: 'natura', icon: '🌿 Arbust' },
   'flower': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Flor Bonica', category: 'natura', icon: '🌸 Flor' },
-  'minifigure': { width: 1, depth: 1, heightUnits: 2, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' }
+  'minifigure': { width: 1, depth: 1, heightUnits: 2, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' },
+  'senyal_tren': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Senyal de Pas a Nivell', category: 'natura', icon: '⚠️ Senyal' },
+  'hidrant': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Boca d\'Incendis', category: 'natura', icon: '🧯 Hidrant' },
+  'banc': { width: 2, depth: 1, heightUnits: 1, nameCatalan: 'Banc de Fusta', category: 'natura', icon: '🪑 Banc' },
+  'rellotge': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Rellotge d\'Estació', category: 'natura', icon: '⏰ Rellotge' },
+  'senyera': { width: 1, depth: 1, heightUnits: 4, nameCatalan: 'Pal amb Senyera', category: 'natura', icon: '🚩 Senyera' }
 };
 
 export class BrickFactory {
@@ -863,34 +901,31 @@ export class BrickFactory {
   }
 
   /**
-   * Generates authentic Lego City Straight Track Piece (4 studs long)
+   * Generates authentic Lego City Straight Track Piece (4 or 8 studs long)
    */
-  public static createLegoCityStraightTrack(isGhost: boolean = false): THREE.Group {
+  public static createLegoCityStraightTrack(isGhost: boolean = false, length: number = 4.0): THREE.Group {
     const group = new THREE.Group();
-    // Lego City Dark Bluish Grey sleepers
     const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
-    // Polished Silver steel rails
     const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
 
-    const length = 4.0;
     const gauge = 1.3;
     const sleeperWidth = 2.4;
     const sleeperH = 0.25;
 
-    // 4 Lego City sleepers with molded stud connectors
-    const numSleepers = 4;
+    const numSleepers = Math.round(length);
     const sleeperGeo = new THREE.BoxGeometry(sleeperWidth, sleeperH, 0.5);
     const { cylinder: studGeo } = this.getStudGeometry();
 
+    const startZ = -((length - 1) / 2);
     for (let i = 0; i < numSleepers; i++) {
-      const zPos = -1.5 + i * 1.0;
+      const zPos = startZ + i * 1.0;
       const sMesh = new THREE.Mesh(sleeperGeo, sleeperMat);
       sMesh.position.set(0, sleeperH / 2, zPos);
       sMesh.castShadow = !isGhost;
       sMesh.receiveShadow = !isGhost;
       group.add(sMesh);
 
-      // 4 studs on each sleeper (2 on left edge, 2 on right edge)
+      // Studs on sleeper ends
       if (!isGhost) {
         [-0.95, 0.95].forEach((xPos) => {
           const st = new THREE.Mesh(studGeo, sleeperMat);
@@ -901,7 +936,7 @@ export class BrickFactory {
       }
     }
 
-    // Two Silver Rails with authentic raised I-beam profile
+    // Two Silver Rails with authentic raised I-beam profile along Z axis
     const railGeo = new THREE.BoxGeometry(0.12, 0.22, length);
     const leftRail = new THREE.Mesh(railGeo, railMat);
     leftRail.position.set(-gauge / 2, sleeperH + 0.11, 0);
@@ -922,53 +957,83 @@ export class BrickFactory {
     clip2.position.set(0.6, 0.08, length / 2);
     group.add(clip1, clip2);
 
-    group.userData = { type: 'track_straight', widthStuds: 4, depthStuds: 2, height: 0.47 };
+    group.userData = {
+      type: length > 4 ? 'track_straight_long' : 'track_straight',
+      widthStuds: 2,
+      depthStuds: length,
+      height: 0.47
+    };
     return group;
   }
 
   /**
-   * Generates Lego City 45-degree Curved Track Piece
+   * Generates Lego City 90-degree Curved Track Piece (connects South port to East/West port)
    */
-  public static createLegoCityCurvedTrack(isGhost: boolean = false): THREE.Group {
+  public static createLegoCityCurvedTrack(isGhost: boolean = false, isLeft: boolean = false): THREE.Group {
     const group = new THREE.Group();
     const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
     const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
 
-    const radius = 6.0;
+    const R = 2.0; // Radius connecting (0, -2) to (2, 0)
     const gauge = 1.3;
-    const angle = Math.PI / 4; // 45 degrees
     const numSleepers = 5;
+    const sSign = isLeft ? -1 : 1;
 
-    // Sleepers along the arc
+    // Center of curvature: (2*sSign, -2)
+    const cx = 2.0 * sSign;
+    const cz = -2.0;
+
+    // Sleepers along the 90 degree arc
     for (let i = 0; i < numSleepers; i++) {
-      const a = (i / (numSleepers - 1)) * angle - angle / 2;
+      const phi = (i / (numSleepers - 1)) * (Math.PI / 2);
+      const x = cx - sSign * R * Math.cos(phi);
+      const z = cz + R * Math.sin(phi);
+
       const sMesh = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.25, 0.5), sleeperMat);
-      sMesh.position.set(Math.sin(a) * radius, 0.125, Math.cos(a) * radius - radius + 2.0);
-      sMesh.rotation.y = -a;
+      sMesh.position.set(x, 0.125, z);
+      sMesh.rotation.y = sSign * phi;
       sMesh.castShadow = !isGhost;
       group.add(sMesh);
     }
 
-    // Curved rails
-    const rIn = radius - gauge / 2;
-    const rOut = radius + gauge / 2;
-    const railShape = new THREE.BoxGeometry(0.12, 0.22, 1.0);
+    // Smooth dual curved rails using CatmullRom tube
+    const steps = 14;
+    const leftPoints: THREE.Vector3[] = [];
+    const rightPoints: THREE.Vector3[] = [];
 
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 7) * angle - angle / 2;
+    const rIn = R - gauge / 2;
+    const rOut = R + gauge / 2;
 
-      const rLeft = new THREE.Mesh(railShape, railMat);
-      rLeft.position.set(Math.sin(a) * rIn, 0.36, Math.cos(a) * rIn - radius + 2.0);
-      rLeft.rotation.y = -a;
+    for (let i = 0; i <= steps; i++) {
+      const phi = (i / steps) * (Math.PI / 2);
+      const xIn = cx - sSign * (isLeft ? rOut : rIn) * Math.cos(phi);
+      const zIn = cz + (isLeft ? rOut : rIn) * Math.sin(phi);
+      leftPoints.push(new THREE.Vector3(xIn, 0.36, zIn));
 
-      const rRight = new THREE.Mesh(railShape, railMat);
-      rRight.position.set(Math.sin(a) * rOut, 0.36, Math.cos(a) * rOut - radius + 2.0);
-      rRight.rotation.y = -a;
-
-      group.add(rLeft, rRight);
+      const xOut = cx - sSign * (isLeft ? rIn : rOut) * Math.cos(phi);
+      const zOut = cz + (isLeft ? rIn : rOut) * Math.sin(phi);
+      rightPoints.push(new THREE.Vector3(xOut, 0.36, zOut));
     }
 
-    group.userData = { type: 'track_curve', widthStuds: 4, depthStuds: 4, height: 0.47 };
+    const leftCurve = new THREE.CatmullRomCurve3(leftPoints);
+    const rightCurve = new THREE.CatmullRomCurve3(rightPoints);
+
+    const railGeoL = new THREE.TubeGeometry(leftCurve, 16, 0.065, 6, false);
+    const railGeoR = new THREE.TubeGeometry(rightCurve, 16, 0.065, 6, false);
+
+    const railMeshL = new THREE.Mesh(railGeoL, railMat);
+    const railMeshR = new THREE.Mesh(railGeoR, railMat);
+    railMeshL.castShadow = !isGhost;
+    railMeshR.castShadow = !isGhost;
+
+    group.add(railMeshL, railMeshR);
+
+    group.userData = {
+      type: isLeft ? 'track_curve_left' : 'track_curve_right',
+      widthStuds: 4,
+      depthStuds: 4,
+      height: 0.47
+    };
     return group;
   }
 
@@ -976,12 +1041,28 @@ export class BrickFactory {
    * Generates Level Crossing with road deck and striped barriers
    */
   public static createLevelCrossing(isGhost: boolean = false): THREE.Group {
-    const group = this.createLegoCityStraightTrack(isGhost);
+    const group = this.createLegoCityStraightTrack(isGhost, 4.0);
     const roadMat = this.getMaterial('#6F4E37', 0.5, 0.05); // Wood planks
     const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
     const whiteMat = this.getMaterial('#F4F4F4', 0.2, 0.05);
 
-    // Wooden roadway crossing between rails
+    // Cross-track running East-West (length 4)
+    const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
+    const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
+
+    [-1.5, 1.5].forEach((xPos) => {
+      const sMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.25, 2.4), sleeperMat);
+      sMesh.position.set(xPos, 0.125, 0);
+      group.add(sMesh);
+    });
+
+    const crossRailL = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.22, 0.12), railMat);
+    crossRailL.position.set(0, 0.36, -0.65);
+    const crossRailR = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.22, 0.12), railMat);
+    crossRailR.position.set(0, 0.36, 0.65);
+    group.add(crossRailL, crossRailR);
+
+    // Wooden roadway crossing deck in center
     const deckGeo = new THREE.BoxGeometry(1.15, 0.22, 2.5);
     const deck = new THREE.Mesh(deckGeo, roadMat);
     deck.position.set(0, 0.22, 0);
@@ -994,7 +1075,6 @@ export class BrickFactory {
       post.position.set(xSide, 0.6, 0);
       group.add(post);
 
-      // Red and white striped arm
       const arm = new THREE.Group();
       arm.position.set(xSide, 1.1, 0);
       for (let s = 0; s < 4; s++) {
@@ -1013,31 +1093,511 @@ export class BrickFactory {
    * Generates Railway Buffer Stop (Topall de Via)
    */
   public static createBufferStop(isGhost: boolean = false): THREE.Group {
-    const group = this.createLegoCityStraightTrack(isGhost);
+    const group = this.createLegoCityStraightTrack(isGhost, 4.0);
     const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
     const blackMat = this.getMaterial('#1B1B1B', 0.3, 0.1);
     const yellowMat = this.getMaterial('#FAC80A', 0.2, 0.4);
 
-    // A-frame bumper
+    // Heavy duty A-frame bumper at z = 1.0
     const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.4), blackMat);
-    frame.position.set(0, 0.65, 1.2);
+    frame.position.set(0, 0.65, 1.0);
     group.add(frame);
 
     // Two Red Buffer Pads
     [-0.55, 0.55].forEach((x) => {
       const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12), redMat);
       pad.rotation.x = Math.PI / 2;
-      pad.position.set(x, 0.65, 1.4);
+      pad.position.set(x, 0.65, 1.2);
       group.add(pad);
     });
 
     // Yellow warning chevron plate
     const warning = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.04, 16), yellowMat);
     warning.rotation.x = Math.PI / 2;
-    warning.position.set(0, 0.65, 1.42);
+    warning.position.set(0, 0.65, 1.22);
     group.add(warning);
 
-    group.userData = { type: 'track_buffer', widthStuds: 2, depthStuds: 2, height: 1.0 };
+    group.userData = { type: 'track_buffer', widthStuds: 2, depthStuds: 4, height: 1.0 };
+    return group;
+  }
+
+  /**
+   * Generates Train Station Platform Track (Andana d'Estació)
+   */
+  public static createStationTrack(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    // Straight track along X = -1.0
+    const track = this.createLegoCityStraightTrack(isGhost, 4.0);
+    track.position.set(-1.0, 0, 0);
+    group.add(track);
+
+    // Station platform on X in [0.0, 2.0]
+    const stoneMat = this.getMaterial('#8A9299', 0.4, 0.1);
+    const tileMat = this.getMaterial('#FAC80A', 0.2, 0.05);
+    const woodMat = this.getMaterial('#6F4E37', 0.5, 0.05);
+    const blueMat = this.getMaterial('#0055BF', 0.2, 0.05);
+
+    const platformGeo = new THREE.BoxGeometry(2.0, 0.7, 4.0);
+    const platform = new THREE.Mesh(platformGeo, stoneMat);
+    platform.position.set(1.0, 0.35, 0);
+    platform.castShadow = true;
+    platform.receiveShadow = true;
+    group.add(platform);
+
+    // Yellow safety edge strip
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 4.0), tileMat);
+    edge.position.set(0.1, 0.72, 0);
+    group.add(edge);
+
+    // Wooden passenger bench
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 1.2), woodMat);
+    bench.position.set(1.2, 0.88, -0.8);
+    bench.castShadow = true;
+    group.add(bench);
+
+    // Canopy roof with blue support pillars
+    [-1.2, 1.2].forEach((z) => {
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.8, 8), blueMat);
+      pillar.position.set(1.2, 1.6, z);
+      pillar.castShadow = true;
+      group.add(pillar);
+    });
+
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.12, 3.6), blueMat);
+    roof.position.set(1.2, 2.5, 0);
+    roof.castShadow = true;
+    group.add(roof);
+
+    group.userData = { type: 'track_station', widthStuds: 4, depthStuds: 4, height: 2.5 };
+    return group;
+  }
+
+  /**
+   * Generates an L-shaped Corner Brick 2x2
+   */
+  public static createCornerBrick(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const h = this.BRICK_HEIGHT;
+
+    // Body: arm 1 (2x1) along X, arm 2 (1x1) along Z
+    const part1 = new THREE.Mesh(new THREE.BoxGeometry(1.98, h, 0.98), material);
+    part1.position.set(0, h / 2, 0.5);
+    part1.castShadow = !isGhost;
+    const part2 = new THREE.Mesh(new THREE.BoxGeometry(0.98, h, 0.98), material);
+    part2.position.set(-0.5, h / 2, -0.5);
+    part2.castShadow = !isGhost;
+    group.add(part1, part2);
+
+    // 3 studs on top
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [
+      { x: -0.5, z: 0.5 },
+      { x: 0.5, z: 0.5 },
+      { x: -0.5, z: -0.5 }
+    ].forEach((p) => {
+      const stud = new THREE.Mesh(studGeo, material);
+      stud.position.set(p.x, h + this.STUD_HEIGHT / 2, p.z);
+      stud.castShadow = !isGhost;
+      group.add(stud);
+    });
+
+    group.userData = { type: 'corner2x2', widthStuds: 2, depthStuds: 2, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Round Cylinder Brick 1x1
+   */
+  public static createCylinderBrick(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const h = this.BRICK_HEIGHT;
+
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, h, 18), material);
+    cyl.position.y = h / 2;
+    cyl.castShadow = !isGhost;
+    group.add(cyl);
+
+    const { cylinder: studGeo } = this.getStudGeometry();
+    const stud = new THREE.Mesh(studGeo, material);
+    stud.position.set(0, h + this.STUD_HEIGHT / 2, 0);
+    stud.castShadow = !isGhost;
+    group.add(stud);
+
+    group.userData = { type: 'cyl1x1', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 1x1 Cone Stud
+   */
+  public static createConeStud(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const h = this.BRICK_HEIGHT;
+
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.48, h, 16), material);
+    cone.position.y = h / 2;
+    cone.castShadow = !isGhost;
+    group.add(cone);
+
+    const { cylinder: studGeo } = this.getStudGeometry();
+    const stud = new THREE.Mesh(studGeo, material);
+    stud.scale.set(0.7, 0.7, 0.7);
+    stud.position.set(0, h + this.STUD_HEIGHT * 0.35, 0);
+    group.add(stud);
+
+    group.userData = { type: 'cone1x1', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 2x2 Conical Castle Turret Roof (fits on top of the round tower!)
+   */
+  public static createConicalTurretRoof(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const goldMat = this.getMaterial('#FAC80A', 0.15, 0.5);
+    const h = 2 * this.BRICK_HEIGHT; // 2.4 units high
+
+    // Flared cone roof
+    const coneGeo = new THREE.ConeGeometry(1.05, h, 24);
+    const cone = new THREE.Mesh(coneGeo, material);
+    cone.position.y = h / 2;
+    cone.castShadow = !isGhost;
+    group.add(cone);
+
+    // Eaves rim at bottom
+    const eaveGeo = new THREE.TorusGeometry(1.04, 0.05, 8, 24);
+    const eave = new THREE.Mesh(eaveGeo, material);
+    eave.rotation.x = Math.PI / 2;
+    eave.position.y = 0.05;
+    group.add(eave);
+
+    // Golden spire ball on top
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), goldMat);
+    finial.position.set(0, h + 0.12, 0);
+    group.add(finial);
+
+    group.userData = { type: 'teulada_con', widthStuds: 2, depthStuds: 2, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 1x4 Castle Battlement Crenellation Wall
+   */
+  public static createCastleWallCrenellation(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const h = this.BRICK_HEIGHT;
+
+    // Base wall 1x4 of height 0.6
+    const baseWall = new THREE.Mesh(new THREE.BoxGeometry(3.96, 0.6, 0.96), material);
+    baseWall.position.y = 0.3;
+    baseWall.castShadow = !isGhost;
+    group.add(baseWall);
+
+    // 3 raised crenel teeth
+    const crenelWidth = 0.8;
+    const crenelH = h - 0.6;
+    [-1.4, 0.0, 1.4].forEach((x) => {
+      const crenel = new THREE.Mesh(new THREE.BoxGeometry(crenelWidth, crenelH, 0.96), material);
+      crenel.position.set(x, 0.6 + crenelH / 2, 0);
+      crenel.castShadow = !isGhost;
+      group.add(crenel);
+    });
+
+    // Top studs
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-1.4, 0.0, 1.4].forEach((x) => {
+      const stud = new THREE.Mesh(studGeo, material);
+      stud.position.set(x, h + this.STUD_HEIGHT / 2, 0);
+      stud.castShadow = !isGhost;
+      group.add(stud);
+    });
+
+    group.userData = { type: 'merlet', widthStuds: 4, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 1x4 Garden Picket Fence
+   */
+  public static createGardenFence(colorHex: string = '#F4F4F4', isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const fenceMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex, 0.25, 0.05);
+    const h = this.BRICK_HEIGHT;
+
+    // Horizontal rails (top and bottom)
+    const bottomRail = new THREE.Mesh(new THREE.BoxGeometry(3.96, 0.12, 0.18), fenceMat);
+    bottomRail.position.set(0, 0.25, 0);
+    const topRail = new THREE.Mesh(new THREE.BoxGeometry(3.96, 0.12, 0.18), fenceMat);
+    topRail.position.set(0, h * 0.75, 0);
+    group.add(bottomRail, topRail);
+
+    // 4 vertical pickets with pointed tips
+    const picketGeo = new THREE.BoxGeometry(0.3, h * 0.85, 0.12);
+    [-1.5, -0.5, 0.5, 1.5].forEach((x) => {
+      const picket = new THREE.Mesh(picketGeo, fenceMat);
+      picket.position.set(x, h * 0.85 / 2, 0);
+      picket.castShadow = !isGhost;
+      group.add(picket);
+
+      // Pointed tip
+      const tipGeo = new THREE.ConeGeometry(0.18, 0.2, 4);
+      tipGeo.rotateY(Math.PI / 4);
+      const tip = new THREE.Mesh(tipGeo, fenceMat);
+      tip.position.set(x, h * 0.85 + 0.1, 0);
+      group.add(tip);
+    });
+
+    group.userData = { type: 'tanca', widthStuds: 4, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 2x2 Chimney with White Smoke
+   */
+  public static createChimneyWithSmoke(colorHex: string = '#D11A2A', isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const brickMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex, 0.4, 0.05);
+    const darkLipMat = this.getMaterial('#1B1B1B', 0.3, 0.1);
+    const smokeMat = this.getMaterial('#FFFFFF', 0.9, 0.0);
+    const h = 2 * this.BRICK_HEIGHT;
+
+    // Chimney stack body
+    const bodyGeo = new THREE.BoxGeometry(1.96, h, 1.96);
+    const body = new THREE.Mesh(bodyGeo, brickMat);
+    body.position.y = h / 2;
+    body.castShadow = !isGhost;
+    group.add(body);
+
+    // Top corbel lip
+    const lipGeo = new THREE.BoxGeometry(2.1, 0.2, 2.1);
+    const lip = new THREE.Mesh(lipGeo, darkLipMat);
+    lip.position.y = h - 0.1;
+    group.add(lip);
+
+    // Fluffy cloud puffs of smoke rising from chimney
+    if (!isGhost) {
+      const puff1 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.45, 1), smokeMat);
+      puff1.position.set(0.1, h + 0.4, -0.1);
+      const puff2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 1), smokeMat);
+      puff2.position.set(-0.15, h + 0.9, 0.1);
+      const puff3 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.65, 1), smokeMat);
+      puff3.position.set(0.2, h + 1.5, 0.05);
+      group.add(puff1, puff2, puff3);
+    }
+
+    group.userData = { type: 'xemeneia', widthStuds: 2, depthStuds: 2, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Railway Crossing X-Sign
+   */
+  public static createRailwayCrossingSign(_isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const postMat = this.getMaterial('#1B1B1B', 0.3, 0.2);
+    const whiteMat = this.getMaterial('#F4F4F4', 0.2, 0.05);
+    const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
+    const h = 3 * this.BRICK_HEIGHT;
+
+    // Post
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, h, 8), postMat);
+    post.position.y = h / 2;
+    post.castShadow = true;
+    group.add(post);
+
+    // Crossbuck arms (two white cross blades with red stripes)
+    const armGeo = new THREE.BoxGeometry(1.6, 0.25, 0.06);
+    const arm1 = new THREE.Mesh(armGeo, whiteMat);
+    arm1.position.set(0, h * 0.85, 0.1);
+    arm1.rotation.z = Math.PI / 4;
+
+    const arm2 = new THREE.Mesh(armGeo, whiteMat);
+    arm2.position.set(0, h * 0.85, 0.11);
+    arm2.rotation.z = -Math.PI / 4;
+
+    // Red tips on crossbuck
+    [-0.6, 0.6].forEach((xOff) => {
+      const tip1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.26, 0.07), redMat);
+      tip1.position.set(xOff, 0, 0);
+      arm1.add(tip1);
+      const tip2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.26, 0.07), redMat);
+      tip2.position.set(xOff, 0, 0);
+      arm2.add(tip2);
+    });
+
+    group.add(arm1, arm2);
+
+    group.userData = { type: 'senyal_tren', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Red City Fire Hydrant
+   */
+  public static createFireHydrant(_isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
+    const silverMat = this.getMaterial('#CBD5E1', 0.2, 0.8);
+    const h = this.BRICK_HEIGHT;
+
+    // Main barrel
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, h * 0.8, 12), redMat);
+    body.position.y = h * 0.4;
+    body.castShadow = true;
+    group.add(body);
+
+    // Dome cap
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(0.25, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2), redMat);
+    dome.position.y = h * 0.8;
+    group.add(dome);
+
+    // Top nut
+    const nut = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.12, 6), silverMat);
+    nut.position.y = h * 0.8 + 0.25;
+    group.add(nut);
+
+    // Two side nozzle valves
+    [-0.26, 0.26].forEach((x) => {
+      const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.14, 8), silverMat);
+      nozzle.rotation.z = Math.PI / 2;
+      nozzle.position.set(x, h * 0.5, 0);
+      group.add(nozzle);
+    });
+
+    group.userData = { type: 'hidrant', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Wooden Park Bench
+   */
+  public static createParkBench(_isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const woodMat = this.getMaterial('#8D6E63', 0.45, 0.05);
+    const ironMat = this.getMaterial('#1B1B1B', 0.3, 0.3);
+    const h = this.BRICK_HEIGHT;
+
+    // Two iron side legs
+    [-0.8, 0.8].forEach((x) => {
+      const legGeo = new THREE.BoxGeometry(0.12, h * 0.7, 0.6);
+      const leg = new THREE.Mesh(legGeo, ironMat);
+      leg.position.set(x, h * 0.35, 0);
+      leg.castShadow = true;
+      group.add(leg);
+    });
+
+    // Seat slats
+    for (let i = 0; i < 3; i++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.08, 0.16), woodMat);
+      slat.position.set(0, h * 0.45, -0.2 + i * 0.2);
+      slat.castShadow = true;
+      group.add(slat);
+    }
+
+    // Backrest slats
+    for (let i = 0; i < 2; i++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.14, 0.08), woodMat);
+      slat.position.set(0, h * 0.65 + i * 0.18, 0.26);
+      slat.castShadow = true;
+      group.add(slat);
+    }
+
+    group.userData = { type: 'banc', widthStuds: 2, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Victorian Station Clock
+   */
+  public static createStationClock(_isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const ironMat = this.getMaterial('#1B1B1B', 0.25, 0.3);
+    const whiteMat = this.getMaterial('#F4F4F4', 0.2, 0.05);
+    const goldMat = this.getMaterial('#FAC80A', 0.15, 0.6);
+    const h = 3 * this.BRICK_HEIGHT;
+
+    // Pillar
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, h * 0.75, 10), ironMat);
+    post.position.y = h * 0.375;
+    post.castShadow = true;
+    group.add(post);
+
+    // Clock head drum
+    const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 18), ironMat);
+    drum.rotation.x = Math.PI / 2;
+    drum.position.y = h * 0.85;
+    drum.castShadow = true;
+    group.add(drum);
+
+    // Front & back white dials
+    [-0.16, 0.16].forEach((z) => {
+      const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.02, 18), whiteMat);
+      dial.rotation.x = Math.PI / 2;
+      dial.position.set(0, h * 0.85, z);
+      group.add(dial);
+
+      // Clock hands pointing to 3 o'clock!
+      const hand1 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.03), ironMat);
+      hand1.position.set(0, h * 0.85 + 0.1, z + (z > 0 ? 0.015 : -0.015));
+      const hand2 = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.03), ironMat);
+      hand2.position.set(0.08, h * 0.85, z + (z > 0 ? 0.015 : -0.015));
+      group.add(hand1, hand2);
+    });
+
+    // Golden ball top finial
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), goldMat);
+    finial.position.set(0, h * 0.85 + 0.55, 0);
+    group.add(finial);
+
+    group.userData = { type: 'rellotge', widthStuds: 1, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a Flagpole with Waving Catalan Senyera Flag
+   */
+  public static createFlagpoleSenyera(_isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const poleMat = this.getMaterial('#F4F4F4', 0.2, 0.1);
+    const goldMat = this.getMaterial('#FAC80A', 0.15, 0.6);
+    const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
+    const yellowMat = this.getMaterial('#FAC80A', 0.2, 0.05);
+    const h = 4 * this.BRICK_HEIGHT; // 4.8 units tall
+
+    // Tall flagpole
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, h, 10), poleMat);
+    pole.position.y = h / 2;
+    pole.castShadow = true;
+    group.add(pole);
+
+    // Gold finial on top
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), goldMat);
+    finial.position.y = h + 0.08;
+    group.add(finial);
+
+    // Catalan Senyera (4 red stripes alternating on yellow)
+    const flagGroup = new THREE.Group();
+    flagGroup.position.set(0.06, h - 0.2, 0);
+
+    const flagWidth = 1.4;
+    const stripeH = 0.18; // 9 stripes total (5 yellow, 4 red)
+    for (let s = 0; s < 9; s++) {
+      const isRed = s % 2 === 1;
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(flagWidth, stripeH, 0.03),
+        isRed ? redMat : yellowMat
+      );
+      stripe.position.set(flagWidth / 2, -s * stripeH, 0);
+      flagGroup.add(stripe);
+    }
+    group.add(flagGroup);
+
+    group.userData = { type: 'senyera', widthStuds: 1, depthStuds: 1, height: h };
     return group;
   }
 

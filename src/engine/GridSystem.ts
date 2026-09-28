@@ -59,7 +59,7 @@ export class GridSystem {
    * Generates studded baseplate with river gorge and toy scenery
    */
   private createBaseplateAndEnvironment(): void {
-    const size = 36; // 36x36 studs
+    const size = 56; // Enlarged canvas: 56x56 studs (over 2.4x buildable surface!)
     const greenMat = BrickFactory.getMaterial('#2E7D32', 0.25, 0.05); // Meadow green
     const plateGeo = new THREE.BoxGeometry(size, 0.4, size);
     this.baseplate = new THREE.Mesh(plateGeo, greenMat);
@@ -218,6 +218,27 @@ export class GridSystem {
       case 'torre2x2':
         group = BrickFactory.createRoundTower(colorHex, isGhost);
         break;
+      case 'teulada_con':
+        group = BrickFactory.createConicalTurretRoof(colorHex, isGhost);
+        break;
+      case 'merlet':
+        group = BrickFactory.createCastleWallCrenellation(colorHex, isGhost);
+        break;
+      case 'tanca':
+        group = BrickFactory.createGardenFence(colorHex, isGhost);
+        break;
+      case 'xemeneia':
+        group = BrickFactory.createChimneyWithSmoke(colorHex, isGhost);
+        break;
+      case 'corner2x2':
+        group = BrickFactory.createCornerBrick(colorHex, isGhost);
+        break;
+      case 'cyl1x1':
+        group = BrickFactory.createCylinderBrick(colorHex, isGhost);
+        break;
+      case 'cone1x1':
+        group = BrickFactory.createConeStud(colorHex, isGhost);
+        break;
       case 'fanal':
         group = BrickFactory.createStreetLight();
         break;
@@ -239,17 +260,42 @@ export class GridSystem {
       case 'minifigure':
         group = BrickFactory.createMinifigure();
         break;
+      case 'senyal_tren':
+        group = BrickFactory.createRailwayCrossingSign(isGhost);
+        break;
+      case 'hidrant':
+        group = BrickFactory.createFireHydrant(isGhost);
+        break;
+      case 'banc':
+        group = BrickFactory.createParkBench(isGhost);
+        break;
+      case 'rellotge':
+        group = BrickFactory.createStationClock(isGhost);
+        break;
+      case 'senyera':
+        group = BrickFactory.createFlagpoleSenyera(isGhost);
+        break;
       case 'track_straight':
-        group = BrickFactory.createLegoCityStraightTrack(isGhost);
+        group = BrickFactory.createLegoCityStraightTrack(isGhost, 4.0);
+        break;
+      case 'track_straight_long':
+        group = BrickFactory.createLegoCityStraightTrack(isGhost, 8.0);
         break;
       case 'track_curve':
-        group = BrickFactory.createLegoCityCurvedTrack(isGhost);
+      case 'track_curve_right':
+        group = BrickFactory.createLegoCityCurvedTrack(isGhost, false);
+        break;
+      case 'track_curve_left':
+        group = BrickFactory.createLegoCityCurvedTrack(isGhost, true);
         break;
       case 'track_crossing':
         group = BrickFactory.createLevelCrossing(isGhost);
         break;
       case 'track_buffer':
         group = BrickFactory.createBufferStop(isGhost);
+        break;
+      case 'track_station':
+        group = BrickFactory.createStationTrack(isGhost);
         break;
       default: {
         const def = BRICK_DEFS[shape] || { width: 2, depth: 2 };
@@ -397,8 +443,8 @@ export class GridSystem {
     const halfW = width / 2;
     const halfD = depth / 2;
 
-    // Check bounds
-    if (Math.abs(snapX) > 17 || Math.abs(snapZ) > 17) return false;
+    // Check bounds (56x56 studs baseplate)
+    if (Math.abs(snapX) > 26 || Math.abs(snapZ) > 26) return false;
 
     // Check against existing placed bricks across all vertical layers
     for (let l = layer; l < layer + heightLayers; l++) {
