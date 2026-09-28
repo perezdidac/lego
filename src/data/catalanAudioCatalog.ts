@@ -122,6 +122,41 @@ export const CATALAN_MISSIONS = {
     introPrompt: 'Hem arribat a l\'Estació del Bosc! Posa dues flors i un arbre per fer-la ben alegre!',
     completedPrompt: 'Quina estació més bonica! Tots els viatgers baixen contents a respirar la primavera!',
     targetItems: ['flor', 'flor', 'arbre']
+  },
+  mission4: {
+    id: 'cozy_cottage',
+    title: 'Missió 4: La Caseta del Maquinista',
+    subtitle: 'Posa una porta, finestra i teulada!',
+    badge: '🏠',
+    introPrompt: 'L\'Antoni vol construir una caseta! Tria la pestanya "Casa" i posa una porta, una finestra i una teulada.',
+    doorDonePrompt: 'Molt bé! Una porta de fusta amb pom daurat!',
+    windowDonePrompt: 'Quina finestra més lluminosa!',
+    roofDonePrompt: 'La teulada està posada!',
+    completedPrompt: 'Fantàstic! Quina caseta tan acollidora! L\'Antoni hi podrà descansar!',
+    targetItems: ['porta', 'finestra', 'teulada']
+  },
+  mission5: {
+    id: 'lay_tracks',
+    title: 'Missió 5: Construeix Vies de Tren',
+    subtitle: 'Col·loca tres vies Lego City per fer un circuit nou!',
+    badge: '🛤️',
+    introPrompt: 'Ampliïm la via del tren! Tria la pestanya "Vies" i col·loca tres trossos de via Lego City a terra.',
+    step1Prompt: 'Molt bé! Una via col·locada!',
+    step2Prompt: 'Dues vies a terra! En falta una!',
+    completedPrompt: 'Bravo! Has creat un circuit de vies nou! Ara el tren pot circular per les teves vies!',
+    requiredCount: 3
+  },
+  mission6: {
+    id: 'town_festival',
+    title: 'Missió 6: Benvinguts Viatgers!',
+    subtitle: 'Posa dos passatgers i un fanal a l\'estació!',
+    badge: '🧑',
+    introPrompt: 'L\'estació s\'omple de vida! Tria "Natura" per posar dos passatgers minifigura i "Casa" per posar un fanal de llum.',
+    passengerPrompt: 'Hola viatger! Benvingut al tren de joguina!',
+    lampPrompt: 'El fanal il·lumina l\'andana de l\'estació!',
+    completedPrompt: 'Visca! Quina gran festa a l\'estació! Tots els passatgers estan a punt per viatjar!',
+    requiredPassengers: 2,
+    requiredLamps: 1
   }
 };
 

@@ -2,11 +2,13 @@ import { MissionManager, type MissionId, type MissionState } from '../game/Missi
 import { voiceHandler } from '../engine/VoiceHandler';
 import { soundSynth } from '../engine/SoundSynth';
 import { CATALAN_MISSIONS } from '../data/catalanAudioCatalog';
+import type { BrickShape } from '../engine/BrickFactory';
 
 export class MissionCardUI {
   private container: HTMLElement;
   private missionManager: MissionManager;
   private onMissionSelect: (id: MissionId) => void;
+  private onToolSuggest?: (shape: BrickShape) => void;
 
   private narratorBubbleText: HTMLElement | null = null;
   private narratorAvatar: HTMLElement | null = null;
@@ -19,10 +21,12 @@ export class MissionCardUI {
     missionManager: MissionManager,
     callbacks: {
       onMissionSelect: (id: MissionId) => void;
+      onToolSuggest?: (shape: BrickShape) => void;
     }
   ) {
     this.missionManager = missionManager;
     this.onMissionSelect = callbacks.onMissionSelect;
+    this.onToolSuggest = callbacks.onToolSuggest;
 
     this.container = document.createElement('div');
     this.container.className = 'mission-header-container';
@@ -62,16 +66,25 @@ export class MissionCardUI {
 
         <!-- Right Controls: Missions menu, Mic & Sound -->
         <div class="header-action-group">
-          <!-- Mission Selector Tabs -->
+          <!-- Mission Selector Tabs (6 guided levels + Free Build) -->
           <div class="mission-pills">
             <button class="m-pill active" data-mission="bridge_repair" title="Missió 1: El Pont">
-              <span>🌉 Pont</span>
+              <span>🌉 1. Pont</span>
             </button>
             <button class="m-pill" data-mission="whistle_and_drive" title="Missió 2: Conduir">
-              <span>🚂 Tren</span>
+              <span>🚂 2. Tren</span>
             </button>
-            <button class="m-pill" data-mission="flower_station" title="Missió 3: L'Estació">
-              <span>🌸 Estació</span>
+            <button class="m-pill" data-mission="flower_station" title="Missió 3: Flors">
+              <span>🌸 3. Flors</span>
+            </button>
+            <button class="m-pill" data-mission="cozy_cottage" title="Missió 4: La Caseta">
+              <span>🏠 4. Casa</span>
+            </button>
+            <button class="m-pill" data-mission="lay_tracks" title="Missió 5: Vies Lego">
+              <span>🛤️ 5. Vies</span>
+            </button>
+            <button class="m-pill" data-mission="town_festival" title="Missió 6: Viatgers">
+              <span>🧑 6. Gent</span>
             </button>
             <button class="m-pill" data-mission="free_build" title="Mode Lliure">
               <span>🎨 Lliure</span>
@@ -227,11 +240,71 @@ export class MissionCardUI {
             ${state.isMissionCompleted ? '<span class="m-done-badge">COMPLETADA! ⭐</span>' : ''}
           </div>
           <div class="task-checklist">
-            <span class="task-pill ${state.flowersPlaced >= 2 ? 'done' : ''}">
-              ${state.flowersPlaced >= 2 ? '✅' : '⚪'} Flors plantades: ${Math.min(2, state.flowersPlaced)}/2
+            <span class="task-pill interactive-task ${state.flowersPlaced >= 2 ? 'done' : ''}" data-tool="flower">
+              ${state.flowersPlaced >= 2 ? '✅' : '🌸'} Flors: ${Math.min(2, state.flowersPlaced)}/2
             </span>
-            <span class="task-pill ${state.treesPlaced >= 1 ? 'done' : ''}">
-              ${state.treesPlaced >= 1 ? '✅' : '⚪'} Arbre plantat: ${Math.min(1, state.treesPlaced)}/1
+            <span class="task-pill interactive-task ${state.treesPlaced >= 1 ? 'done' : ''}" data-tool="tree_pine">
+              ${state.treesPlaced >= 1 ? '✅' : '🌲'} Arbre: ${Math.min(1, state.treesPlaced)}/1
+            </span>
+          </div>
+        </div>
+      `;
+    } else if (state.currentMissionId === 'cozy_cottage') {
+      const doorDone = state.doorsPlaced >= 1;
+      const winDone = state.windowsPlaced >= 1;
+      const roofDone = state.roofsPlaced >= 1;
+      this.missionContent.innerHTML = `
+        <div class="mission-info">
+          <div class="mission-title-row">
+            <span class="m-badge">🏠</span>
+            <span class="m-title">${CATALAN_MISSIONS.mission4.title}</span>
+            ${state.isMissionCompleted ? '<span class="m-done-badge">COMPLETADA! ⭐</span>' : ''}
+          </div>
+          <div class="task-checklist">
+            <span class="task-pill interactive-task ${doorDone ? 'done' : ''}" data-tool="porta">
+              ${doorDone ? '✅' : '🚪'} Porta: ${doorDone ? 1 : 0}/1
+            </span>
+            <span class="task-pill interactive-task ${winDone ? 'done' : ''}" data-tool="finestra">
+              ${winDone ? '✅' : '🪟'} Finestra: ${winDone ? 1 : 0}/1
+            </span>
+            <span class="task-pill interactive-task ${roofDone ? 'done' : ''}" data-tool="slope2x2">
+              ${roofDone ? '✅' : '📐'} Teulada: ${roofDone ? 1 : 0}/1
+            </span>
+          </div>
+        </div>
+      `;
+    } else if (state.currentMissionId === 'lay_tracks') {
+      const count = Math.min(3, state.tracksPlaced);
+      this.missionContent.innerHTML = `
+        <div class="mission-info">
+          <div class="mission-title-row">
+            <span class="m-badge">🛤️</span>
+            <span class="m-title">${CATALAN_MISSIONS.mission5.title}</span>
+            ${state.isMissionCompleted ? '<span class="m-done-badge">COMPLETADA! ⭐</span>' : ''}
+          </div>
+          <div class="task-checklist">
+            <span class="task-pill interactive-task ${count >= 3 ? 'done' : ''}" data-tool="track_straight">
+              ${count >= 3 ? '✅' : '🛤️'} Vies Lego City: ${count}/3
+            </span>
+          </div>
+        </div>
+      `;
+    } else if (state.currentMissionId === 'town_festival') {
+      const passDone = state.passengersPlaced >= 2;
+      const lampDone = state.lampsPlaced >= 1;
+      this.missionContent.innerHTML = `
+        <div class="mission-info">
+          <div class="mission-title-row">
+            <span class="m-badge">🧑</span>
+            <span class="m-title">${CATALAN_MISSIONS.mission6.title}</span>
+            ${state.isMissionCompleted ? '<span class="m-done-badge">COMPLETADA! ⭐</span>' : ''}
+          </div>
+          <div class="task-checklist">
+            <span class="task-pill interactive-task ${passDone ? 'done' : ''}" data-tool="minifigure">
+              ${passDone ? '✅' : '🧑'} Passatgers: ${Math.min(2, state.passengersPlaced)}/2
+            </span>
+            <span class="task-pill interactive-task ${lampDone ? 'done' : ''}" data-tool="fanal">
+              ${lampDone ? '✅' : '💡'} Fanal: ${lampDone ? 1 : 0}/1
             </span>
           </div>
         </div>
@@ -244,10 +317,23 @@ export class MissionCardUI {
             <span class="m-title">Mode Construcció Lliure</span>
           </div>
           <div class="free-mode-hint">
-            <span>Construeix el que vulguis, posa vies i trens, o entra a conduir!</span>
+            <span>Construeix lliurement amb 25 peces de joguina, posa vies i condueix el tren!</span>
           </div>
         </div>
       `;
     }
+
+    // Bind interactive task clicks (e.g. clicking a task selects that tool!)
+    const taskPills = this.missionContent.querySelectorAll('.interactive-task');
+    taskPills.forEach((tp) => {
+      tp.addEventListener('click', (e) => {
+        const el = e.currentTarget as HTMLElement;
+        const tool = el.dataset.tool as BrickShape;
+        if (tool && this.onToolSuggest) {
+          soundSynth.playUIBeep(580);
+          this.onToolSuggest(tool);
+        }
+      });
+    });
   }
 }

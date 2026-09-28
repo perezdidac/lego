@@ -1,6 +1,16 @@
 import { CATALAN_COLORS } from '../data/catalanAudioCatalog';
-import type { BrickShape } from '../engine/BrickFactory';
+import { BRICK_DEFS, type BrickShape } from '../engine/BrickFactory';
 import { soundSynth } from '../engine/SoundSynth';
+import { voiceHandler } from '../engine/VoiceHandler';
+
+export type BrickCategory = 'bloc' | 'casa' | 'vies' | 'natura';
+
+export const CATEGORIES: { id: BrickCategory; label: string; icon: string }[] = [
+  { id: 'bloc', label: 'Blocs', icon: '🧱' },
+  { id: 'casa', label: 'Casa', icon: '🏠' },
+  { id: 'vies', label: 'Vies Lego City', icon: '🛤️' },
+  { id: 'natura', label: 'Natura', icon: '🌳' }
+];
 
 export class PaletteUI {
   private container: HTMLElement;
@@ -11,6 +21,7 @@ export class PaletteUI {
   private onDeleteToggle: (isDeleteMode: boolean) => void;
   private onSwitchToDrive: () => void;
 
+  private currentCategory: BrickCategory = 'bloc';
   private selectedColorKey: string = 'groc';
   private selectedShape: BrickShape = '2x2';
   private isDeleteMode: boolean = false;
@@ -43,30 +54,18 @@ export class PaletteUI {
   private render(): void {
     this.container.innerHTML = `
       <div class="palette-panel">
-        <!-- Top row: Shapes & Scenery -->
-        <div class="shape-selector" id="shape-selector">
-          <button class="shape-btn ${this.selectedShape === '1x1' ? 'active' : ''}" data-shape="1x1" title="Bloc 1x1">
-            <span class="shape-icon">🧱 1x1</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === '2x2' ? 'active' : ''}" data-shape="2x2" title="Bloc 2x2">
-            <span class="shape-icon">🧱 2x2</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === '2x4' ? 'active' : ''}" data-shape="2x4" title="Bloc 2x4">
-            <span class="shape-icon">🧱 2x4</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === '1x6' ? 'active' : ''}" data-shape="1x6" title="Bloc 1x6">
-            <span class="shape-icon">🧱 1x6</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === 'slope2x2' ? 'active' : ''}" data-shape="slope2x2" title="Rampa">
-            <span class="shape-icon">📐 Rampa</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === 'tree_pine' ? 'active' : ''}" data-shape="tree_pine" title="Arbre">
-            <span class="shape-icon">🌲 Arbre</span>
-          </button>
-          <button class="shape-btn ${this.selectedShape === 'flower' ? 'active' : ''}" data-shape="flower" title="Flor">
-            <span class="shape-icon">🌸 Flor</span>
-          </button>
+        <!-- Top: Category Tabs -->
+        <div class="category-tabs" id="category-tabs">
+          ${CATEGORIES.map(cat => `
+            <button class="cat-tab ${this.currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+              <span class="cat-icon">${cat.icon}</span>
+              <span class="cat-label">${cat.label}</span>
+            </button>
+          `).join('')}
         </div>
+
+        <!-- Shapes Selector for Current Category -->
+        <div class="shape-selector" id="shape-selector"></div>
 
         <!-- Middle row: Color palette with Catalan names -->
         <div class="color-palette" id="color-palette">
@@ -83,7 +82,7 @@ export class PaletteUI {
 
         <!-- Bottom row: Tools & Mode Switching -->
         <div class="action-tools">
-          <button class="action-btn tool-rotate" id="btn-rotate" title="Girar bloc">
+          <button class="action-btn tool-rotate" id="btn-rotate" title="Girar bloc (R)">
             <span>🔄 Girar (R)</span>
           </button>
           <button class="action-btn tool-undo" id="btn-undo" title="Desfer última acció">
@@ -99,12 +98,29 @@ export class PaletteUI {
       </div>
     `;
 
+    this.renderShapes();
     this.bindEvents();
   }
 
-  private bindEvents(): void {
-    // Shape clicks
-    const shapeBtns = this.container.querySelectorAll('.shape-btn');
+  private renderShapes(): void {
+    const shapeSelector = this.container.querySelector('#shape-selector');
+    if (!shapeSelector) return;
+
+    // Filter shapes by current category
+    const entries = Object.entries(BRICK_DEFS).filter(
+      ([, def]) => def.category === this.currentCategory
+    ) as [BrickShape, (typeof BRICK_DEFS)[BrickShape]][];
+
+    shapeSelector.innerHTML = entries.map(([shape, def]) => `
+      <button class="shape-btn ${this.selectedShape === shape ? 'active' : ''}" 
+              data-shape="${shape}" 
+              title="${def.nameCatalan}">
+        <span class="shape-icon">${def.icon}</span>
+      </button>
+    `).join('');
+
+    // Bind shape clicks
+    const shapeBtns = shapeSelector.querySelectorAll('.shape-btn');
     shapeBtns.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLElement;
@@ -118,6 +134,43 @@ export class PaletteUI {
           }
           this.updateActiveShapeUI();
           this.onShapeSelect(shape);
+
+          // Voice announcement in Catalan
+          const def = BRICK_DEFS[shape];
+          if (def) {
+            voiceHandler.speak(def.nameCatalan);
+          }
+        }
+      });
+    });
+  }
+
+  private bindEvents(): void {
+    // Category tabs
+    const catTabs = this.container.querySelectorAll('.cat-tab');
+    catTabs.forEach((tab) => {
+      tab.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const cat = target.dataset.cat as BrickCategory;
+        if (cat && cat !== this.currentCategory) {
+          this.currentCategory = cat;
+          soundSynth.playUIBeep(480);
+
+          catTabs.forEach(t => t.classList.remove('active'));
+          target.classList.add('active');
+
+          this.renderShapes();
+
+          // Auto-select first shape in category if current shape is not in category
+          const shapesInCat = (Object.keys(BRICK_DEFS) as BrickShape[]).filter(
+            k => BRICK_DEFS[k].category === cat
+          );
+
+          if (!shapesInCat.includes(this.selectedShape) && shapesInCat.length > 0) {
+            this.selectedShape = shapesInCat[0];
+            this.updateActiveShapeUI();
+            this.onShapeSelect(this.selectedShape);
+          }
         }
       });
     });
@@ -194,5 +247,28 @@ export class PaletteUI {
 
   public setVisible(visible: boolean): void {
     this.container.style.display = visible ? 'block' : 'none';
+  }
+
+  public setCategory(cat: BrickCategory): void {
+    if (this.currentCategory !== cat) {
+      this.currentCategory = cat;
+      const catTabs = this.container.querySelectorAll('.cat-tab');
+      catTabs.forEach((t) => {
+        const el = t as HTMLElement;
+        el.classList.toggle('active', el.dataset.cat === cat);
+      });
+      this.renderShapes();
+    }
+  }
+
+  public selectShape(shape: BrickShape): void {
+    const def = BRICK_DEFS[shape];
+    if (def) {
+      this.setCategory(def.category);
+      this.selectedShape = shape;
+      this.updateActiveShapeUI();
+      this.onShapeSelect(shape);
+      voiceHandler.speak(def.nameCatalan);
+    }
   }
 }

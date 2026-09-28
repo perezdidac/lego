@@ -51,6 +51,7 @@ export class GameManager {
 
     // 4. Grid Snapping System
     this.gridSystem = new GridSystem(this.sceneController.scene, this.sceneController.camera);
+    this.gridSystem.setTrackNetwork(this.trackNetwork);
 
     // 5. Narrative Mission Manager
     this.missionManager = new MissionManager(this.trackNetwork, this.trainActor);
@@ -66,14 +67,18 @@ export class GameManager {
     uiLayer.className = 'game-ui-layer';
     container.appendChild(uiLayer);
 
-    // Top Mission Card & Catalan Narrator Header
+    // Top Mission Card & Catalan Narrator Header (sits at top of screen)
     this.missionCardUI = new MissionCardUI(uiLayer, this.missionManager, {
       onMissionSelect: (id: MissionId) => {
         this.missionManager.startMission(id);
+      },
+      onToolSuggest: (shape) => {
+        this.paletteUI.selectShape(shape);
+        this.gridSystem.setToolShape(shape);
       }
     });
 
-    // Bottom Building Palette UI
+    // Bottom Building Palette UI (sits at bottom of screen)
     this.paletteUI = new PaletteUI(uiLayer, {
       onColorSelect: (colorHex: string, colorKey: string) => {
         this.gridSystem.setToolColor(colorHex);
@@ -97,8 +102,13 @@ export class GameManager {
       }
     });
 
+    // Suggest palette category when mission changes
+    this.missionManager.setOnCategorySuggest((cat) => {
+      this.paletteUI.setCategory(cat);
+    });
+
     // Conductor HUD Controls UI
-    this.trainControlsUI = new TrainControlsUI(uiLayer, this.trainActor, {
+    this.trainControlsUI = new TrainControlsUI(uiLayer, this.trainActor, this.trackNetwork, {
       onWhistle: () => {
         this.missionManager.handleWhistleTriggered();
       },
@@ -197,9 +207,7 @@ export class GameManager {
             this.gridSystem.updatePointerPosition(this.pointerNDC);
             const placed = this.gridSystem.placeCurrentBrick();
             if (placed) {
-              if (placed.shape === 'flower' || placed.shape === 'tree_pine') {
-                this.missionManager.handleSceneryPlaced(placed.shape);
-              }
+              this.missionManager.handlePiecePlaced(placed.shape);
             }
           }
         }

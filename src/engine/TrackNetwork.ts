@@ -10,6 +10,14 @@ export interface BridgeGapSlot {
   ghostMesh?: THREE.Group;
 }
 
+export interface PlacedTrackPieceData {
+  id: string;
+  position: THREE.Vector3;
+  rotationY: number;
+  shape: string;
+  mesh: THREE.Group;
+}
+
 export class TrackNetwork {
   private scene: THREE.Scene;
   private trackCurve: THREE.CatmullRomCurve3;
@@ -18,6 +26,12 @@ export class TrackNetwork {
   private isBridgeRepaired: boolean = false;
   private trackMeshesGroup: THREE.Group = new THREE.Group();
   private bridgeGroup: THREE.Group = new THREE.Group();
+
+  // Custom placed tracks system
+  private customTracks: PlacedTrackPieceData[] = [];
+  private activeRoute: 'circuit' | 'custom' = 'circuit';
+  private customCurve: THREE.CatmullRomCurve3 | null = null;
+  private customTotalLength: number = 0;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -82,7 +96,8 @@ export class TrackNetwork {
       transparent: true,
       opacity: 0.7,
       roughness: 0.2,
-      metalness: 0.1
+      metalness: 0.1,
+      side: THREE.DoubleSide
     });
 
     gapXPositions.forEach((x, index) => {
@@ -98,7 +113,6 @@ export class TrackNetwork {
       });
 
       ghost.position.copy(pos);
-      // Offset so base rests at pos.y
       ghost.position.y -= BrickFactory.BRICK_HEIGHT / 2;
       this.bridgeGroup.add(ghost);
 
@@ -115,14 +129,14 @@ export class TrackNetwork {
   }
 
   /**
-   * Generates continuous track sleepers and shiny metal rails along the spline
+   * Generates continuous Lego City style track sleepers and shiny metal rails along the spline
    */
   private buildTrackVisuals(): void {
-    const sleeperMat = BrickFactory.getMaterial('#5D4037', 0.6, 0.05); // Wood tie
-    const railMat = BrickFactory.getMaterial('#C0C8CF', 0.15, 0.9);   // Shiny steel rail
-    const sleeperGeo = new THREE.BoxGeometry(2.2, 0.25, 0.5);
+    // Authentic Lego City dark grey plastic sleepers with studs
+    const sleeperMat = BrickFactory.getMaterial('#475569', 0.4, 0.1);
+    const railMat = BrickFactory.getMaterial('#CBD5E1', 0.15, 0.85); // Shiny silver rails
+    const sleeperGeo = new THREE.BoxGeometry(2.4, 0.25, 0.5);
 
-    // Sleepers along the curve
     const sleeperDistance = 1.0;
     const numSleepers = Math.floor(this.totalLength / sleeperDistance);
 
@@ -131,7 +145,10 @@ export class TrackNetwork {
       const pos = this.trackCurve.getPointAt(u);
       const tangent = this.trackCurve.getTangentAt(u).normalize();
       const normal = new THREE.Vector3(0, 1, 0);
-      const binormal = new THREE.Vector3().crossVectors(tangent, normal).normalize();
+
+      // PROPER RIGHT-HANDED BASIS: right = normal x tangent
+      const right = new THREE.Vector3().crossVectors(normal, tangent).normalize();
+      const correctedUp = new THREE.Vector3().crossVectors(tangent, right).normalize();
 
       // Check if sleeper is within bridge gap while unrepaired
       const isInsideBridgeGap = Math.abs(pos.z - 15) < 1.8 && Math.abs(pos.x) < 2.0;
@@ -141,8 +158,7 @@ export class TrackNetwork {
         sleeper.position.copy(pos);
         sleeper.position.y -= 0.1;
 
-        // Orient sleeper perpendicular to track tangent
-        const rotMatrix = new THREE.Matrix4().makeBasis(binormal, normal, tangent);
+        const rotMatrix = new THREE.Matrix4().makeBasis(right, correctedUp, tangent);
         sleeper.rotation.setFromRotationMatrix(rotMatrix);
         sleeper.castShadow = true;
         sleeper.receiveShadow = true;
@@ -161,17 +177,14 @@ export class TrackNetwork {
       const pos = this.trackCurve.getPointAt(u);
       const tangent = this.trackCurve.getTangentAt(u).normalize();
       const normal = new THREE.Vector3(0, 1, 0);
-      const binormal = new THREE.Vector3().crossVectors(tangent, normal).normalize();
+      const right = new THREE.Vector3().crossVectors(normal, tangent).normalize();
 
-      railLeftPoints.push(pos.clone().addScaledVector(binormal, -gauge / 2).add(new THREE.Vector3(0, 0.08, 0)));
-      railRightPoints.push(pos.clone().addScaledVector(binormal, gauge / 2).add(new THREE.Vector3(0, 0.08, 0)));
+      railLeftPoints.push(pos.clone().addScaledVector(right, -gauge / 2).add(new THREE.Vector3(0, 0.08, 0)));
+      railRightPoints.push(pos.clone().addScaledVector(right, gauge / 2).add(new THREE.Vector3(0, 0.08, 0)));
     }
 
     const leftRailCurve = new THREE.CatmullRomCurve3(railLeftPoints, true);
     const rightRailCurve = new THREE.CatmullRomCurve3(railRightPoints, true);
-
-    const railShape = new THREE.CylinderGeometry(0.07, 0.07, 1, 8);
-    railShape.rotateZ(Math.PI / 2);
 
     const leftRailGeo = new THREE.TubeGeometry(leftRailCurve, 140, 0.07, 8, true);
     const rightRailGeo = new THREE.TubeGeometry(rightRailCurve, 140, 0.07, 8, true);
@@ -186,35 +199,98 @@ export class TrackNetwork {
   }
 
   /**
-   * Get 3D transform at a distance along track
+   * Register a user-placed Lego City track piece
+   */
+  public registerCustomTrack(piece: PlacedTrackPieceData): void {
+    this.customTracks.push(piece);
+    this.rebuildCustomTrackPath();
+  }
+
+  public unregisterCustomTrack(mesh: THREE.Group): void {
+    this.customTracks = this.customTracks.filter(t => t.mesh !== mesh);
+    this.rebuildCustomTrackPath();
+  }
+
+  public getCustomTracks(): PlacedTrackPieceData[] {
+    return this.customTracks;
+  }
+
+  /**
+   * Solves a continuous curve connecting user placed track pieces
+   */
+  private rebuildCustomTrackPath(): void {
+    if (this.customTracks.length < 2) {
+      this.customCurve = null;
+      this.customTotalLength = 0;
+      return;
+    }
+
+    const waypoints: THREE.Vector3[] = [];
+    this.customTracks.forEach((t) => {
+      waypoints.push(new THREE.Vector3(t.position.x, 0.4, t.position.z));
+    });
+
+    const isClosed = this.customTracks.length >= 4 &&
+      waypoints[0].distanceTo(waypoints[waypoints.length - 1]) < 5.0;
+
+    this.customCurve = new THREE.CatmullRomCurve3(waypoints, isClosed, 'centripetal', 0.2);
+    this.customTotalLength = this.customCurve.getLength();
+  }
+
+  public setRoute(route: 'circuit' | 'custom'): boolean {
+    if (route === 'custom') {
+      if (!this.customCurve || this.customTracks.length < 2) {
+        return false;
+      }
+      this.activeRoute = 'custom';
+      return true;
+    } else {
+      this.activeRoute = 'circuit';
+      return true;
+    }
+  }
+
+  public getActiveRoute(): 'circuit' | 'custom' {
+    return this.activeRoute;
+  }
+
+  /**
+   * Get 3D transform at a distance along track with PROPER RIGHT-HANDED BASIS
    */
   public getTransformAtDistance(distance: number): {
     position: THREE.Vector3;
+    quaternion: THREE.Quaternion;
+    rotation: THREE.Euler;
     tangent: THREE.Vector3;
     normal: THREE.Vector3;
-    rotation: THREE.Euler;
   } {
-    // Wrap distance inside [0, totalLength)
-    let d = distance % this.totalLength;
-    if (d < 0) d += this.totalLength;
+    const activeCurve = (this.activeRoute === 'custom' && this.customCurve) ? this.customCurve : this.trackCurve;
+    const len = (this.activeRoute === 'custom' && this.customCurve) ? this.customTotalLength : this.totalLength;
 
-    const u = d / this.totalLength;
-    const position = this.trackCurve.getPointAt(u);
-    const tangent = this.trackCurve.getTangentAt(u).normalize();
+    let d = distance % len;
+    if (d < 0) d += len;
 
-    // Calculate orientation matrix
+    const u = d / len;
+    const position = activeCurve.getPointAt(u);
+    const tangent = activeCurve.getTangentAt(u).normalize();
+
+    // STRICT RIGHT-HANDED ORTHONORMAL BASIS:
+    // tangent = forward (+Z)
+    // up = normal (+Y)
+    // right = up x forward (+X)
     const up = new THREE.Vector3(0, 1, 0);
-    const binormal = new THREE.Vector3().crossVectors(tangent, up).normalize();
-    const correctedUp = new THREE.Vector3().crossVectors(binormal, tangent).normalize();
+    const right = new THREE.Vector3().crossVectors(up, tangent).normalize();
+    const correctedUp = new THREE.Vector3().crossVectors(tangent, right).normalize();
 
-    const m = new THREE.Matrix4().makeBasis(binormal, correctedUp, tangent);
-    const rotation = new THREE.Euler().setFromRotationMatrix(m);
+    const m = new THREE.Matrix4().makeBasis(right, correctedUp, tangent);
+    const quaternion = new THREE.Quaternion().setFromRotationMatrix(m);
+    const rotation = new THREE.Euler().setFromQuaternion(quaternion);
 
-    return { position, tangent, normal: correctedUp, rotation };
+    return { position, quaternion, rotation, tangent, normal: correctedUp };
   }
 
   public getTotalLength(): number {
-    return this.totalLength;
+    return (this.activeRoute === 'custom' && this.customCurve) ? this.customTotalLength : this.totalLength;
   }
 
   public getBridgeSlots(): BridgeGapSlot[] {
@@ -240,8 +316,8 @@ export class TrackNetwork {
     }
 
     // Add wooden sleeper and dual rails directly on top of the placed bridge brick!
-    const sleeperMat = BrickFactory.getMaterial('#5D4037', 0.6, 0.05);
-    const railMat = BrickFactory.getMaterial('#C0C8CF', 0.15, 0.9);
+    const sleeperMat = BrickFactory.getMaterial('#475569', 0.4, 0.1);
+    const railMat = BrickFactory.getMaterial('#CBD5E1', 0.15, 0.85);
 
     const bridgeTrackPiece = new THREE.Group();
     const sleeperGeo = new THREE.BoxGeometry(0.5, 0.2, 2.2);
@@ -282,8 +358,7 @@ export class TrackNetwork {
   }
 
   public canTrainPassAt(distance: number): boolean {
-    if (this.isBridgeRepaired) return true;
-    // Bridge gap is around u = 4/12 (~ 0.33 of track, X near 0, Z = 15)
+    if (this.isBridgeRepaired || this.activeRoute === 'custom') return true;
     const { position } = this.getTransformAtDistance(distance);
     const isAtBridgeGap = Math.abs(position.z - 15) < 2.0 && Math.abs(position.x) < 2.5;
     return !isAtBridgeGap;

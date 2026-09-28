@@ -1,23 +1,76 @@
 import * as THREE from 'three';
 
-export type BrickShape = '1x1' | '2x2' | '2x4' | '1x6' | 'slope2x2' | 'track_straight' | 'tree_pine' | 'flower';
+export type BrickShape =
+  | '1x1'
+  | '1x2'
+  | '2x2'
+  | '2x3'
+  | '2x4'
+  | '1x6'
+  | '2x8'
+  | 'plate2x2'
+  | 'plate4x4'
+  | 'slope2x2'
+  | 'slope2x4'
+  | 'arch1x4'
+  | 'finestra'
+  | 'porta'
+  | 'torre2x2'
+  | 'fanal'
+  | 'barril'
+  | 'tree_pine'
+  | 'tree_apple'
+  | 'arbust'
+  | 'flower'
+  | 'minifigure'
+  | 'track_straight'
+  | 'track_curve'
+  | 'track_crossing'
+  | 'track_buffer';
 
 export interface BrickDefinition {
   width: number; // in studs along X
   depth: number; // in studs along Z
   heightUnits: number; // standard height = 1 (1.2 units)
   nameCatalan: string;
+  category: 'bloc' | 'casa' | 'vies' | 'natura';
+  icon: string;
 }
 
-export const BRICK_DEFS: Record<string, BrickDefinition> = {
-  '1x1': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x1' },
-  '2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x2' },
-  '2x4': { width: 4, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x4' },
-  '1x6': { width: 6, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x6' },
-  'slope2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Rampa 2x2' },
-  'track_straight': { width: 4, depth: 2, heightUnits: 0.35, nameCatalan: 'Via Recta' },
-  'tree_pine': { width: 2, depth: 2, heightUnits: 3, nameCatalan: 'Arbre del Bosc' },
-  'flower': { width: 1, depth: 1, heightUnits: 0.8, nameCatalan: 'Flor Bonica' }
+export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
+  // Classic Bricks
+  '1x1': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x1', category: 'bloc', icon: '🧱 1x1' },
+  '1x2': { width: 2, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x2', category: 'bloc', icon: '🧱 1x2' },
+  '2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x2', category: 'bloc', icon: '🧱 2x2' },
+  '2x3': { width: 3, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x3', category: 'bloc', icon: '🧱 2x3' },
+  '2x4': { width: 4, depth: 2, heightUnits: 1, nameCatalan: 'Bloc 2x4', category: 'bloc', icon: '🧱 2x4' },
+  '1x6': { width: 6, depth: 1, heightUnits: 1, nameCatalan: 'Bloc 1x6', category: 'bloc', icon: '🧱 1x6' },
+  '2x8': { width: 8, depth: 2, heightUnits: 1, nameCatalan: 'Viga 2x8', category: 'bloc', icon: '🧱 2x8' },
+
+  // House & Architecture
+  'plate2x2': { width: 2, depth: 2, heightUnits: 0.35, nameCatalan: 'Rajola Llisa 2x2', category: 'casa', icon: '▫️ Rajola' },
+  'plate4x4': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Placa 4x4', category: 'casa', icon: '⬜ Placa' },
+  'slope2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Rampa 2x2', category: 'casa', icon: '📐 Rampa' },
+  'slope2x4': { width: 4, depth: 2, heightUnits: 1, nameCatalan: 'Rampa Gran 2x4', category: 'casa', icon: '🏠 Sostre' },
+  'arch1x4': { width: 4, depth: 1, heightUnits: 1, nameCatalan: 'Arc de Pont', category: 'casa', icon: '🌉 Arc' },
+  'finestra': { width: 2, depth: 1, heightUnits: 1.2, nameCatalan: 'Finestra', category: 'casa', icon: '🪟 Finestra' },
+  'porta': { width: 2, depth: 1, heightUnits: 2.0, nameCatalan: 'Porta de Casa', category: 'casa', icon: '🚪 Porta' },
+  'torre2x2': { width: 2, depth: 2, heightUnits: 1.5, nameCatalan: 'Torre Rodona', category: 'casa', icon: '🏰 Torre' },
+  'fanal': { width: 1, depth: 1, heightUnits: 2.2, nameCatalan: 'Fanal de Carrer', category: 'casa', icon: '💡 Fanal' },
+  'barril': { width: 1, depth: 1, heightUnits: 1.1, nameCatalan: 'Barril de Càrrega', category: 'casa', icon: '🛢️ Barril' },
+
+  // Lego City Modular Tracks
+  'track_straight': { width: 4, depth: 2, heightUnits: 0.35, nameCatalan: 'Via Recta Lego City', category: 'vies', icon: '🛤️ Via Recta' },
+  'track_curve': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Via Corba 45°', category: 'vies', icon: '🔄 Via Corba' },
+  'track_crossing': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Pas a Nivell', category: 'vies', icon: '🚧 Pas a Nivell' },
+  'track_buffer': { width: 2, depth: 2, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
+
+  // Nature & Minifigures
+  'tree_pine': { width: 2, depth: 2, heightUnits: 3, nameCatalan: 'Avet del Bosc', category: 'natura', icon: '🌲 Avet' },
+  'tree_apple': { width: 3, depth: 3, heightUnits: 3.2, nameCatalan: 'Pomera Fruitera', category: 'natura', icon: '🌳 Pomera' },
+  'arbust': { width: 2, depth: 2, heightUnits: 1.2, nameCatalan: 'Arbust Verd', category: 'natura', icon: '🌿 Arbust' },
+  'flower': { width: 1, depth: 1, heightUnits: 0.8, nameCatalan: 'Flor Bonica', category: 'natura', icon: '🌸 Flor' },
+  'minifigure': { width: 1, depth: 1, heightUnits: 1.8, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' }
 };
 
 export class BrickFactory {
@@ -59,7 +112,8 @@ export class BrickFactory {
         color: new THREE.Color(colorHex),
         roughness: roughness,
         metalness: metalness,
-        envMapIntensity: 1.2
+        envMapIntensity: 1.2,
+        side: THREE.DoubleSide // Guarantee 100% visible front and back faces!
       });
       this.materialCache.set(key, mat);
     }
@@ -76,7 +130,8 @@ export class BrickFactory {
           roughness: 0.1,
           metalness: 0.1,
           emissive: new THREE.Color('#0077B6'),
-          emissiveIntensity: 0.4
+          emissiveIntensity: 0.4,
+          side: THREE.DoubleSide
         });
       }
       return this.ghostMaterial;
@@ -89,7 +144,8 @@ export class BrickFactory {
           roughness: 0.1,
           metalness: 0.1,
           emissive: new THREE.Color('#D00000'),
-          emissiveIntensity: 0.5
+          emissiveIntensity: 0.5,
+          side: THREE.DoubleSide
         });
       }
       return this.invalidGhostMaterial;
@@ -114,8 +170,7 @@ export class BrickFactory {
     const h = this.BRICK_HEIGHT;
 
     // Main box body with slight bevel inset
-    // Use BoxGeometry with bevel margin
-    const boxMargin = 0.02; // Small gap between adjacent bricks for realistic seams!
+    const boxMargin = 0.02;
     const boxGeo = new THREE.BoxGeometry(w - boxMargin, h, d - boxMargin);
     const boxMesh = new THREE.Mesh(boxGeo, material);
     boxMesh.position.y = h / 2;
@@ -170,7 +225,6 @@ export class BrickFactory {
       }
     }
 
-    // Attach metadata
     group.userData = {
       type: 'brick',
       widthStuds,
@@ -183,7 +237,74 @@ export class BrickFactory {
   }
 
   /**
-   * Generates a 2x2 roof slope brick
+   * Generates a 2x2 Smooth Flat Tile (no studs on top)
+   */
+  public static createFlatTile(
+    widthStuds: number,
+    depthStuds: number,
+    colorHex: string,
+    isGhost: boolean = false
+  ): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex, 0.12, 0.05);
+
+    const w = widthStuds * this.GRID_UNIT - 0.03;
+    const d = depthStuds * this.GRID_UNIT - 0.03;
+    const h = 0.38;
+
+    const tileGeo = new THREE.BoxGeometry(w, h, d);
+    const tileMesh = new THREE.Mesh(tileGeo, material);
+    tileMesh.position.y = h / 2;
+    tileMesh.castShadow = !isGhost;
+    tileMesh.receiveShadow = !isGhost;
+    group.add(tileMesh);
+
+    group.userData = { type: 'tile', widthStuds, depthStuds, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 4x4 Thin Baseplate Tile with studs
+   */
+  public static createPlate(
+    widthStuds: number,
+    depthStuds: number,
+    colorHex: string,
+    isGhost: boolean = false
+  ): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+
+    const w = widthStuds * this.GRID_UNIT - 0.02;
+    const d = depthStuds * this.GRID_UNIT - 0.02;
+    const h = 0.38; // Plate height is 1/3 of a full brick
+
+    const plateGeo = new THREE.BoxGeometry(w, h, d);
+    const plate = new THREE.Mesh(plateGeo, material);
+    plate.position.y = h / 2;
+    plate.castShadow = !isGhost;
+    plate.receiveShadow = !isGhost;
+    group.add(plate);
+
+    // Studs on top face
+    const { cylinder: studGeo } = this.getStudGeometry();
+    const startX = -((widthStuds - 1) / 2) * this.GRID_UNIT;
+    const startZ = -((depthStuds - 1) / 2) * this.GRID_UNIT;
+
+    for (let ix = 0; ix < widthStuds; ix++) {
+      for (let iz = 0; iz < depthStuds; iz++) {
+        const stud = new THREE.Mesh(studGeo, material);
+        stud.position.set(startX + ix * this.GRID_UNIT, h + this.STUD_HEIGHT / 2, startZ + iz * this.GRID_UNIT);
+        group.add(stud);
+      }
+    }
+
+    group.userData = { type: 'plate', widthStuds, depthStuds, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 2x2 or 2x4 roof slope brick
    */
   public static createSlopeBrick(
     widthStuds: number,
@@ -198,7 +319,6 @@ export class BrickFactory {
     const d = depthStuds * this.GRID_UNIT;
     const h = this.BRICK_HEIGHT;
 
-    // Build triangular prism extrusion
     const shape = new THREE.Shape();
     shape.moveTo(-d / 2, 0);
     shape.lineTo(d / 2, 0);
@@ -236,98 +356,324 @@ export class BrickFactory {
       group.add(studMesh);
     }
 
-    group.userData = {
-      type: 'slope',
-      widthStuds,
-      depthStuds,
-      colorHex,
-      height: h
-    };
-
+    group.userData = { type: 'slope', widthStuds, depthStuds, height: h };
     return group;
   }
 
   /**
-   * Generates a straight track piece with sleepers and steel rails
+   * Generates a 1x4 Bridge Arch Piece
    */
-  public static createTrackStraight(
-    lengthUnits: number = 4.0,
-    isGhost: boolean = false
-  ): THREE.Group {
+  public static createArchBrick(colorHex: string, isGhost: boolean = false): THREE.Group {
     const group = new THREE.Group();
-    const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#6F4E37', 0.6, 0.05); // Wood brown
-    const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#B0BEC5', 0.2, 0.85);   // Polished steel
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
 
-    const trackGauge = 1.3; // Distance between rail centers
-    const sleeperCount = Math.floor(lengthUnits / 0.8);
-    const sleeperWidth = 2.2;
-    const sleeperHeight = 0.25;
-    const sleeperDepth = 0.45;
+    const w = 4.0 * this.GRID_UNIT - 0.02;
+    const d = 1.0 * this.GRID_UNIT - 0.02;
+    const h = this.BRICK_HEIGHT;
 
-    // Sleepers (wooden/plastic ties)
-    const sleeperGeo = new THREE.BoxGeometry(sleeperWidth, sleeperHeight, sleeperDepth);
-    const startZ = -((lengthUnits - 0.8) / 2);
+    // Solid top bar
+    const topGeo = new THREE.BoxGeometry(w, 0.45, d);
+    const topMesh = new THREE.Mesh(topGeo, material);
+    topMesh.position.y = h - 0.225;
+    group.add(topMesh);
 
-    for (let i = 0; i < sleeperCount; i++) {
-      const sMesh = new THREE.Mesh(sleeperGeo, sleeperMat);
-      sMesh.position.set(0, sleeperHeight / 2, startZ + i * 0.8);
-      sMesh.castShadow = !isGhost;
-      sMesh.receiveShadow = !isGhost;
-      group.add(sMesh);
+    // Two side pillars
+    const pillarGeo = new THREE.BoxGeometry(0.85, h - 0.45, d);
+    const leftP = new THREE.Mesh(pillarGeo, material);
+    leftP.position.set(-w / 2 + 0.425, (h - 0.45) / 2, 0);
+    const rightP = new THREE.Mesh(pillarGeo, material);
+    rightP.position.set(w / 2 - 0.425, (h - 0.45) / 2, 0);
+    group.add(leftP, rightP);
 
-      // Add two small studs on outer ends of each sleeper
-      if (!isGhost) {
-        const { cylinder: studGeo } = this.getStudGeometry();
-        const stud1 = new THREE.Mesh(studGeo, sleeperMat);
-        stud1.scale.set(0.65, 0.65, 0.65);
-        stud1.position.set(-sleeperWidth * 0.42, sleeperHeight + this.STUD_HEIGHT * 0.32, startZ + i * 0.8);
-        const stud2 = stud1.clone();
-        stud2.position.x = sleeperWidth * 0.42;
-        group.add(stud1, stud2);
-      }
+    // Arch curve under top
+    const archCurveGeo = new THREE.CylinderGeometry(1.2, 1.2, d, 16, 1, false, 0, Math.PI);
+    const archMesh = new THREE.Mesh(archCurveGeo, material);
+    archMesh.rotation.x = Math.PI / 2;
+    archMesh.position.set(0, (h - 0.45), 0);
+    archMesh.scale.set(0.95, 0.4, 1);
+    group.add(archMesh);
+
+    // Studs on top (4 studs)
+    const { cylinder: studGeo } = this.getStudGeometry();
+    for (let i = 0; i < 4; i++) {
+      const stud = new THREE.Mesh(studGeo, material);
+      stud.position.set(-1.5 + i * 1.0, h + this.STUD_HEIGHT / 2, 0);
+      group.add(stud);
     }
 
-    // Steel rails: Left and Right
-    const railGeo = new THREE.BoxGeometry(0.12, 0.22, lengthUnits);
-    const leftRail = new THREE.Mesh(railGeo, railMat);
-    leftRail.position.set(-trackGauge / 2, sleeperHeight + 0.11, 0);
-    leftRail.castShadow = !isGhost;
-    leftRail.receiveShadow = !isGhost;
-
-    const rightRail = new THREE.Mesh(railGeo, railMat);
-    rightRail.position.set(trackGauge / 2, sleeperHeight + 0.11, 0);
-    rightRail.castShadow = !isGhost;
-    rightRail.receiveShadow = !isGhost;
-
-    group.add(leftRail, rightRail);
-
-    group.userData = {
-      type: 'track_straight',
-      length: lengthUnits,
-      gauge: trackGauge,
-      height: sleeperHeight + 0.22
-    };
-
+    group.userData = { type: 'arch', widthStuds: 4, depthStuds: 1, height: h };
     return group;
   }
 
   /**
-   * Generates a miniature pine tree made of green stepped cones on a brown trunk
+   * Generates a 1x2 Window with glowing glass
+   */
+  public static createWindow(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const frameMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0xBAE6FD,
+      transparent: true,
+      opacity: 0.65,
+      roughness: 0.1,
+      metalness: 0.2,
+      emissive: 0x38BDF8,
+      emissiveIntensity: 0.3
+    });
+
+    const w = 2.0;
+    const d = 1.0;
+    const h = 1.5;
+
+    // Window frame
+    const frameGeo = new THREE.BoxGeometry(w, h, d);
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.position.y = h / 2;
+    group.add(frame);
+
+    // Glass cutout pane
+    const glassGeo = new THREE.BoxGeometry(w * 0.75, h * 0.75, 0.1);
+    const glass = new THREE.Mesh(glassGeo, glassMat);
+    glass.position.set(0, h / 2, 0);
+    group.add(glass);
+
+    // 2 top studs
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-0.5, 0.5].forEach((x) => {
+      const stud = new THREE.Mesh(studGeo, frameMat);
+      stud.position.set(x, h + this.STUD_HEIGHT / 2, 0);
+      group.add(stud);
+    });
+
+    group.userData = { type: 'finestra', widthStuds: 2, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 1x2 Door with door frame and golden handle
+   */
+  public static createDoor(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const frameMat = this.getMaterial('#F4F4F4'); // White door frame
+    const doorMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+    const goldMat = this.getMaterial('#FAC80A', 0.2, 0.5);
+
+    const w = 2.0;
+    const d = 1.0;
+    const h = 2.4;
+
+    // Outer door frame
+    const topFrame = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, d), frameMat);
+    topFrame.position.y = h - 0.15;
+    const leftFrame = new THREE.Mesh(new THREE.BoxGeometry(0.3, h - 0.3, d), frameMat);
+    leftFrame.position.set(-w / 2 + 0.15, (h - 0.3) / 2, 0);
+    const rightFrame = leftFrame.clone();
+    rightFrame.position.x = w / 2 - 0.15;
+    group.add(topFrame, leftFrame, rightFrame);
+
+    // Door panel inside
+    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, h - 0.3, 0.3), doorMat);
+    doorPanel.position.set(0, (h - 0.3) / 2, 0);
+    doorPanel.castShadow = true;
+    group.add(doorPanel);
+
+    // Golden handle knob
+    const knob = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), goldMat);
+    knob.position.set(0.38, 1.1, 0.2);
+    group.add(knob);
+
+    // Top studs
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-0.5, 0.5].forEach((x) => {
+      const stud = new THREE.Mesh(studGeo, frameMat);
+      stud.position.set(x, h + this.STUD_HEIGHT / 2, 0);
+      group.add(stud);
+    });
+
+    group.userData = { type: 'porta', widthStuds: 2, depthStuds: 1, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a 2x2 Round Cylinder Tower Brick
+   */
+  public static createRoundTower(colorHex: string, isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
+
+    const radius = 0.95;
+    const h = 1.5;
+    const cylGeo = new THREE.CylinderGeometry(radius, radius, h, 20);
+    const cyl = new THREE.Mesh(cylGeo, material);
+    cyl.position.y = h / 2;
+    cyl.castShadow = true;
+    cyl.receiveShadow = true;
+    group.add(cyl);
+
+    // 4 studs on top
+    const { cylinder: studGeo } = this.getStudGeometry();
+    [-0.45, 0.45].forEach((x) => {
+      [-0.45, 0.45].forEach((z) => {
+        const stud = new THREE.Mesh(studGeo, material);
+        stud.position.set(x, h + this.STUD_HEIGHT / 2, z);
+        group.add(stud);
+      });
+    });
+
+    group.userData = { type: 'torre2x2', widthStuds: 2, depthStuds: 2, height: h };
+    return group;
+  }
+
+  /**
+   * Generates a City Street Light / Signal Lamp
+   */
+  public static createStreetLight(): THREE.Group {
+    const group = new THREE.Group();
+    const blackMat = this.getMaterial('#1B1B1B', 0.3, 0.1);
+    const glowMat = new THREE.MeshStandardMaterial({
+      color: 0xFEF08A,
+      emissive: 0xFDE047,
+      emissiveIntensity: 0.9,
+      roughness: 0.1
+    });
+
+    // Base post
+    const postGeo = new THREE.CylinderGeometry(0.1, 0.14, 2.4, 8);
+    const post = new THREE.Mesh(postGeo, blackMat);
+    post.position.y = 1.2;
+    group.add(post);
+
+    // Lamp head
+    const headGeo = new THREE.ConeGeometry(0.35, 0.25, 8);
+    const head = new THREE.Mesh(headGeo, blackMat);
+    head.position.set(0.3, 2.4, 0);
+    head.rotation.z = Math.PI;
+
+    // Glowing bulb
+    const bulbGeo = new THREE.SphereGeometry(0.18, 12, 10);
+    const bulb = new THREE.Mesh(bulbGeo, glowMat);
+    bulb.position.set(0.3, 2.25, 0);
+    group.add(head, bulb);
+
+    group.userData = { type: 'fanal', widthStuds: 1, depthStuds: 1, height: 2.5 };
+    return group;
+  }
+
+  /**
+   * Generates a Cargo Barrel with studs
+   */
+  public static createCargoBarrel(colorHex: string = '#6F4E37'): THREE.Group {
+    const group = new THREE.Group();
+    const woodMat = this.getMaterial(colorHex, 0.4, 0.1);
+    const bandMat = this.getMaterial('#1B1B1B', 0.3, 0.4);
+
+    const barrelGeo = new THREE.CylinderGeometry(0.38, 0.34, 1.0, 14);
+    const barrel = new THREE.Mesh(barrelGeo, woodMat);
+    barrel.position.y = 0.5;
+    barrel.castShadow = true;
+    group.add(barrel);
+
+    // Top stud
+    const { cylinder: studGeo } = this.getStudGeometry();
+    const stud = new THREE.Mesh(studGeo, woodMat);
+    stud.position.set(0, 1.0 + this.STUD_HEIGHT / 2, 0);
+    group.add(stud);
+
+    // Black metal hoops
+    [-0.25, 0.25].forEach((yOff) => {
+      const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.37, 0.03, 6, 16), bandMat);
+      hoop.rotation.x = Math.PI / 2;
+      hoop.position.y = 0.5 + yOff;
+      group.add(hoop);
+    });
+
+    group.userData = { type: 'barril', widthStuds: 1, depthStuds: 1, height: 1.1 };
+    return group;
+  }
+
+  /**
+   * Generates a Deciduous Apple Tree (round leafy treetop with red apples!)
+   */
+  public static createAppleTree(): THREE.Group {
+    const group = new THREE.Group();
+    const trunkMat = this.getMaterial('#5D4037', 0.6, 0.05);
+    const leavesMat = this.getMaterial('#2E7D32', 0.3, 0.05);
+    const appleMat = this.getMaterial('#D11A2A', 0.15, 0.05);
+
+    // Trunk
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, 1.4, 8), trunkMat);
+    trunk.position.y = 0.7;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Round leafy crown (cluster of spheres)
+    const crownCenter = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4, 1), leavesMat);
+    crownCenter.position.y = 2.2;
+    crownCenter.castShadow = true;
+    group.add(crownCenter);
+
+    // Red Apples dotted around crown
+    const applePositions = [
+      { x: 0.9, y: 2.1, z: 0.6 },
+      { x: -0.8, y: 2.3, z: 0.7 },
+      { x: 0.3, y: 2.5, z: -1.0 },
+      { x: -0.7, y: 1.8, z: -0.8 },
+      { x: 0.8, y: 1.9, z: -0.6 }
+    ];
+
+    applePositions.forEach((p) => {
+      const apple = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), appleMat);
+      apple.position.set(p.x, p.y, p.z);
+      group.add(apple);
+    });
+
+    group.userData = { type: 'tree_apple', widthStuds: 3, depthStuds: 3, height: 3.2 };
+    return group;
+  }
+
+  /**
+   * Generates a Garden Shrub / Bush
+   */
+  public static createBush(): THREE.Group {
+    const group = new THREE.Group();
+    const leavesMat = this.getMaterial('#237841', 0.35, 0.05);
+    const flowerMat = this.getMaterial('#FAC80A', 0.2, 0.05);
+
+    const mainGeo = new THREE.DodecahedronGeometry(0.7, 1);
+    const bush = new THREE.Mesh(mainGeo, leavesMat);
+    bush.position.y = 0.55;
+    bush.scale.set(1.4, 0.8, 1.2);
+    bush.castShadow = true;
+    group.add(bush);
+
+    // Small flower dots on bush
+    [
+      { x: 0.4, y: 0.8, z: 0.3 },
+      { x: -0.5, y: 0.75, z: -0.2 },
+      { x: 0.1, y: 0.9, z: -0.4 }
+    ].forEach((pos) => {
+      const f = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), flowerMat);
+      f.position.set(pos.x, pos.y, pos.z);
+      group.add(f);
+    });
+
+    group.userData = { type: 'arbust', widthStuds: 2, depthStuds: 2, height: 1.1 };
+    return group;
+  }
+
+  /**
+   * Generates a miniature pine tree
    */
   public static createPineTree(colorHex: string = '#237841'): THREE.Group {
     const group = new THREE.Group();
     const trunkMat = this.getMaterial('#5D4037', 0.7, 0.0);
     const foliageMat = this.getMaterial(colorHex, 0.25, 0.02);
 
-    // Trunk
-    const trunkGeo = new THREE.CylinderGeometry(0.22, 0.28, 1.2, 10);
-    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 1.2, 10), trunkMat);
     trunk.position.y = 0.6;
     trunk.castShadow = true;
-    trunk.receiveShadow = true;
     group.add(trunk);
 
-    // Foliage layers
     const layers = [
       { rBot: 1.4, rTop: 0.6, h: 0.9, y: 1.2 },
       { rBot: 1.1, rTop: 0.35, h: 0.85, y: 1.85 },
@@ -335,27 +681,18 @@ export class BrickFactory {
     ];
 
     layers.forEach((layer) => {
-      const coneGeo = new THREE.ConeGeometry(layer.rBot, layer.h, 12);
-      const cone = new THREE.Mesh(coneGeo, foliageMat);
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(layer.rBot, layer.h, 12), foliageMat);
       cone.position.y = layer.y;
       cone.castShadow = true;
-      cone.receiveShadow = true;
       group.add(cone);
     });
 
-    // Top stud
-    const { cylinder: studGeo } = this.getStudGeometry();
-    const topStud = new THREE.Mesh(studGeo, foliageMat);
-    topStud.scale.set(0.6, 0.6, 0.6);
-    topStud.position.y = 2.9;
-    group.add(topStud);
-
-    group.userData = { type: 'tree_pine', height: 3.0 };
+    group.userData = { type: 'tree_pine', widthStuds: 2, depthStuds: 2, height: 3.0 };
     return group;
   }
 
   /**
-   * Generates a miniature toy flower
+   * Generates a flower
    */
   public static createFlower(colorHex: string = '#FAC80A'): THREE.Group {
     const group = new THREE.Group();
@@ -363,61 +700,47 @@ export class BrickFactory {
     const petalMat = this.getMaterial(colorHex, 0.2, 0.05);
     const centerMat = this.getMaterial('#FAC80A', 0.2, 0.05);
 
-    // Stem
-    const stemGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 8);
-    const stem = new THREE.Mesh(stemGeo, stemMat);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.5, 8), stemMat);
     stem.position.y = 0.25;
-    stem.castShadow = true;
     group.add(stem);
 
-    // Petals (4 small disc petals)
     const petalGeo = new THREE.SphereGeometry(0.18, 10, 8);
     petalGeo.scale(1, 0.4, 1.4);
     for (let i = 0; i < 4; i++) {
       const petal = new THREE.Mesh(petalGeo, petalMat);
-      petal.position.set(
-        Math.cos((i * Math.PI) / 2) * 0.22,
-        0.52,
-        Math.sin((i * Math.PI) / 2) * 0.22
-      );
+      petal.position.set(Math.cos((i * Math.PI) / 2) * 0.22, 0.52, Math.sin((i * Math.PI) / 2) * 0.22);
       petal.rotation.y = (i * Math.PI) / 2;
       group.add(petal);
     }
 
-    // Flower center
-    const centerGeo = new THREE.SphereGeometry(0.14, 12, 10);
-    const center = new THREE.Mesh(centerGeo, centerMat);
+    const center = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), centerMat);
     center.position.y = 0.54;
     group.add(center);
 
-    group.userData = { type: 'flower', height: 0.65 };
+    group.userData = { type: 'flower', widthStuds: 1, depthStuds: 1, height: 0.65 };
     return group;
   }
 
   /**
-   * Generates Antoni the Minifigure train driver!
+   * Generates Antoni / Passenger Minifigure
    */
   public static createMinifigure(): THREE.Group {
     const group = new THREE.Group();
-    const skinMat = this.getMaterial('#FAC80A', 0.15, 0.05); // Classic toy yellow
-    const uniformMat = this.getMaterial('#0055BF', 0.2, 0.05); // Blue overalls
-    const capMat = this.getMaterial('#D11A2A', 0.2, 0.05);    // Red conductor cap
+    const skinMat = this.getMaterial('#FAC80A', 0.15, 0.05);
+    const uniformMat = this.getMaterial('#0055BF', 0.2, 0.05);
+    const capMat = this.getMaterial('#D11A2A', 0.2, 0.05);
     const blackMat = this.getMaterial('#1B1B1B', 0.3, 0.1);
 
-    // Legs & Hips
-    const hipsGeo = new THREE.BoxGeometry(0.65, 0.25, 0.35);
-    const hips = new THREE.Mesh(hipsGeo, uniformMat);
+    // Legs
+    const hips = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.25, 0.35), uniformMat);
     hips.position.y = 0.55;
-    group.add(hips);
-
-    const legGeo = new THREE.BoxGeometry(0.28, 0.45, 0.34);
-    const leftLeg = new THREE.Mesh(legGeo, uniformMat);
+    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.45, 0.34), uniformMat);
     leftLeg.position.set(-0.16, 0.25, 0);
-    const rightLeg = new THREE.Mesh(legGeo, uniformMat);
+    const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.45, 0.34), uniformMat);
     rightLeg.position.set(0.16, 0.25, 0);
-    group.add(leftLeg, rightLeg);
+    group.add(hips, leftLeg, rightLeg);
 
-    // Torso (trapezoid wedge)
+    // Torso
     const torsoGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.55, 4);
     torsoGeo.rotateY(Math.PI / 4);
     const torso = new THREE.Mesh(torsoGeo, uniformMat);
@@ -426,41 +749,219 @@ export class BrickFactory {
     group.add(torso);
 
     // Head
-    const headGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.35, 16);
-    const head = new THREE.Mesh(headGeo, skinMat);
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.35, 16), skinMat);
     head.position.y = 1.35;
-    group.add(head);
 
-    // Conductor Cap
-    const capGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.16, 16);
-    const cap = new THREE.Mesh(capGeo, capMat);
+    // Smiling face eyes
+    const eyeMat = blackMat;
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), eyeMat);
+    eyeL.position.set(-0.08, 1.38, 0.22);
+    const eyeR = eyeL.clone();
+    eyeR.position.x = 0.08;
+    group.add(head, eyeL, eyeR);
+
+    // Cap
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.16, 16), capMat);
     cap.position.y = 1.55;
-
-    const visorGeo = new THREE.BoxGeometry(0.32, 0.04, 0.18);
-    const visor = new THREE.Mesh(visorGeo, blackMat);
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.18), blackMat);
     visor.position.set(0, 1.5, 0.18);
     visor.rotation.x = 0.2;
     group.add(cap, visor);
 
-    // Arms & Hands
+    // Arms
     const armGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.4, 8);
     const handGeo = new THREE.TorusGeometry(0.08, 0.03, 6, 12, Math.PI * 1.5);
-
     [-1, 1].forEach((side) => {
       const arm = new THREE.Mesh(armGeo, uniformMat);
       arm.position.set(side * 0.42, 0.92, 0.05);
       arm.rotation.z = -side * 0.3;
       arm.rotation.x = 0.4;
-
       const hand = new THREE.Mesh(handGeo, skinMat);
       hand.position.set(side * 0.48, 0.72, 0.2);
       hand.rotation.y = side * Math.PI / 2;
-
       group.add(arm, hand);
     });
 
-    group.castShadow = true;
-    group.userData = { type: 'minifigure', name: 'Antoni' };
+    group.userData = { type: 'minifigure', widthStuds: 1, depthStuds: 1, height: 1.8 };
+    return group;
+  }
+
+  /**
+   * Generates authentic Lego City Straight Track Piece (4 studs long)
+   */
+  public static createLegoCityStraightTrack(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    // Lego City Dark Bluish Grey sleepers
+    const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
+    // Polished Silver steel rails
+    const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
+
+    const length = 4.0;
+    const gauge = 1.3;
+    const sleeperWidth = 2.4;
+    const sleeperH = 0.25;
+
+    // 4 Lego City sleepers with molded stud connectors
+    const numSleepers = 4;
+    const sleeperGeo = new THREE.BoxGeometry(sleeperWidth, sleeperH, 0.5);
+    const { cylinder: studGeo } = this.getStudGeometry();
+
+    for (let i = 0; i < numSleepers; i++) {
+      const zPos = -1.5 + i * 1.0;
+      const sMesh = new THREE.Mesh(sleeperGeo, sleeperMat);
+      sMesh.position.set(0, sleeperH / 2, zPos);
+      sMesh.castShadow = !isGhost;
+      sMesh.receiveShadow = !isGhost;
+      group.add(sMesh);
+
+      // 4 studs on each sleeper (2 on left edge, 2 on right edge)
+      if (!isGhost) {
+        [-0.95, 0.95].forEach((xPos) => {
+          const st = new THREE.Mesh(studGeo, sleeperMat);
+          st.scale.set(0.65, 0.65, 0.65);
+          st.position.set(xPos, sleeperH + this.STUD_HEIGHT * 0.32, zPos);
+          group.add(st);
+        });
+      }
+    }
+
+    // Two Silver Rails with authentic raised I-beam profile
+    const railGeo = new THREE.BoxGeometry(0.12, 0.22, length);
+    const leftRail = new THREE.Mesh(railGeo, railMat);
+    leftRail.position.set(-gauge / 2, sleeperH + 0.11, 0);
+    leftRail.castShadow = !isGhost;
+
+    const rightRail = new THREE.Mesh(railGeo, railMat);
+    rightRail.position.set(gauge / 2, sleeperH + 0.11, 0);
+    rightRail.castShadow = !isGhost;
+
+    group.add(leftRail, rightRail);
+
+    // Track connecting clips on ends
+    const clipMat = sleeperMat;
+    const clipGeo = new THREE.BoxGeometry(0.4, 0.15, 0.2);
+    const clip1 = new THREE.Mesh(clipGeo, clipMat);
+    clip1.position.set(-0.6, 0.08, -length / 2);
+    const clip2 = new THREE.Mesh(clipGeo, clipMat);
+    clip2.position.set(0.6, 0.08, length / 2);
+    group.add(clip1, clip2);
+
+    group.userData = { type: 'track_straight', widthStuds: 4, depthStuds: 2, height: 0.47 };
+    return group;
+  }
+
+  /**
+   * Generates Lego City 45-degree Curved Track Piece
+   */
+  public static createLegoCityCurvedTrack(isGhost: boolean = false): THREE.Group {
+    const group = new THREE.Group();
+    const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
+    const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
+
+    const radius = 6.0;
+    const gauge = 1.3;
+    const angle = Math.PI / 4; // 45 degrees
+    const numSleepers = 5;
+
+    // Sleepers along the arc
+    for (let i = 0; i < numSleepers; i++) {
+      const a = (i / (numSleepers - 1)) * angle - angle / 2;
+      const sMesh = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.25, 0.5), sleeperMat);
+      sMesh.position.set(Math.sin(a) * radius, 0.125, Math.cos(a) * radius - radius + 2.0);
+      sMesh.rotation.y = -a;
+      sMesh.castShadow = !isGhost;
+      group.add(sMesh);
+    }
+
+    // Curved rails
+    const rIn = radius - gauge / 2;
+    const rOut = radius + gauge / 2;
+    const railShape = new THREE.BoxGeometry(0.12, 0.22, 1.0);
+
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 7) * angle - angle / 2;
+
+      const rLeft = new THREE.Mesh(railShape, railMat);
+      rLeft.position.set(Math.sin(a) * rIn, 0.36, Math.cos(a) * rIn - radius + 2.0);
+      rLeft.rotation.y = -a;
+
+      const rRight = new THREE.Mesh(railShape, railMat);
+      rRight.position.set(Math.sin(a) * rOut, 0.36, Math.cos(a) * rOut - radius + 2.0);
+      rRight.rotation.y = -a;
+
+      group.add(rLeft, rRight);
+    }
+
+    group.userData = { type: 'track_curve', widthStuds: 4, depthStuds: 4, height: 0.47 };
+    return group;
+  }
+
+  /**
+   * Generates Level Crossing with road deck and striped barriers
+   */
+  public static createLevelCrossing(isGhost: boolean = false): THREE.Group {
+    const group = this.createLegoCityStraightTrack(isGhost);
+    const roadMat = this.getMaterial('#6F4E37', 0.5, 0.05); // Wood planks
+    const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
+    const whiteMat = this.getMaterial('#F4F4F4', 0.2, 0.05);
+
+    // Wooden roadway crossing between rails
+    const deckGeo = new THREE.BoxGeometry(1.15, 0.22, 2.5);
+    const deck = new THREE.Mesh(deckGeo, roadMat);
+    deck.position.set(0, 0.22, 0);
+    deck.receiveShadow = true;
+    group.add(deck);
+
+    // Two Striped Crossing Barriers (left and right)
+    [-1.6, 1.6].forEach((xSide) => {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.2, 8), this.getMaterial('#1B1B1B'));
+      post.position.set(xSide, 0.6, 0);
+      group.add(post);
+
+      // Red and white striped arm
+      const arm = new THREE.Group();
+      arm.position.set(xSide, 1.1, 0);
+      for (let s = 0; s < 4; s++) {
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.08), s % 2 === 0 ? redMat : whiteMat);
+        stripe.position.x = (xSide > 0 ? -1 : 1) * (0.2 + s * 0.3);
+        arm.add(stripe);
+      }
+      group.add(arm);
+    });
+
+    group.userData = { type: 'track_crossing', widthStuds: 4, depthStuds: 4, height: 1.2 };
+    return group;
+  }
+
+  /**
+   * Generates Railway Buffer Stop (Topall de Via)
+   */
+  public static createBufferStop(isGhost: boolean = false): THREE.Group {
+    const group = this.createLegoCityStraightTrack(isGhost);
+    const redMat = this.getMaterial('#D11A2A', 0.2, 0.05);
+    const blackMat = this.getMaterial('#1B1B1B', 0.3, 0.1);
+    const yellowMat = this.getMaterial('#FAC80A', 0.2, 0.4);
+
+    // A-frame bumper
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.4), blackMat);
+    frame.position.set(0, 0.65, 1.2);
+    group.add(frame);
+
+    // Two Red Buffer Pads
+    [-0.55, 0.55].forEach((x) => {
+      const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12), redMat);
+      pad.rotation.x = Math.PI / 2;
+      pad.position.set(x, 0.65, 1.4);
+      group.add(pad);
+    });
+
+    // Yellow warning chevron plate
+    const warning = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.04, 16), yellowMat);
+    warning.rotation.x = Math.PI / 2;
+    warning.position.set(0, 0.65, 1.42);
+    group.add(warning);
+
+    group.userData = { type: 'track_buffer', widthStuds: 2, depthStuds: 2, height: 1.0 };
     return group;
   }
 
@@ -542,7 +1043,7 @@ export class BrickFactory {
         wheelGroup.add(hub);
 
         root.add(wheelGroup);
-        wheels.push(wheelMesh);
+        wheels.push(wheelGroup as unknown as THREE.Mesh);
       });
 
       // Side connecting rod (biela)
@@ -610,13 +1111,12 @@ export class BrickFactory {
 
     const chimneyTop = new THREE.Vector3(0, chimneyY + 0.45, chimneyZ);
 
-    // 5. Driver Cabin (Cabina de conducció) in Blue or Red
+    // 5. Driver Cabin (Cabina de conducció) in Blue
     const cabinWidth = 2.0;
     const cabinHeight = 1.7;
     const cabinLength = 1.8;
     const cabinZ = -1.5;
 
-    // Walls
     const cabinWallGeo = new THREE.BoxGeometry(cabinWidth, cabinHeight, cabinLength);
     const cabin = new THREE.Mesh(cabinWallGeo, blueMat);
     cabin.position.set(0, 0.65 + chassisHeight / 2 + cabinHeight / 2, cabinZ);
@@ -624,7 +1124,7 @@ export class BrickFactory {
     cabin.receiveShadow = true;
     root.add(cabin);
 
-    // Cabin Curved Roof (Sostre vermell)
+    // Cabin Curved Roof in Red
     const roofGeo = new THREE.CylinderGeometry(1.2, 1.2, cabinLength + 0.25, 18, 1, false, 0, Math.PI);
     const roof = new THREE.Mesh(roofGeo, redMat);
     roof.rotation.z = Math.PI / 2;
@@ -633,7 +1133,7 @@ export class BrickFactory {
     roof.castShadow = true;
     root.add(roof);
 
-    // Windows (yellow glowing glass / white)
+    // Windows
     const winGeo = new THREE.BoxGeometry(0.04, 0.5, 0.65);
     const winMat = this.getMaterial('#FAC80A', 0.1, 0.1);
     const leftWin = new THREE.Mesh(winGeo, winMat);
@@ -648,7 +1148,7 @@ export class BrickFactory {
     driver.position.set(0, cabin.position.y - cabinHeight / 2 + 0.05, cabinZ + 0.1);
     root.add(driver);
 
-    // 6. Brass Headlight Lantern (Far davanter) with real Spotlight!
+    // 6. Brass Headlight Lantern with real Spotlight!
     const lanternGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.35, 16);
     const lantern = new THREE.Mesh(lanternGeo, goldMat);
     lantern.rotation.x = Math.PI / 2;
@@ -656,7 +1156,7 @@ export class BrickFactory {
     root.add(lantern);
 
     const lensGeo = new THREE.CircleGeometry(0.22, 16);
-    const lensMat = new THREE.MeshBasicMaterial({ color: 0xfff0aa });
+    const lensMat = new THREE.MeshBasicMaterial({ color: 0xfff0aa, side: THREE.DoubleSide });
     const lens = new THREE.Mesh(lensGeo, lensMat);
     lens.position.set(0, lantern.position.y, lantern.position.z + 0.18);
     root.add(lens);
@@ -688,7 +1188,6 @@ export class BrickFactory {
     const whiteMat = this.getMaterial('#F4F4F4', 0.2, 0.05);
     const goldMat = this.getMaterial('#FAC80A', 0.2, 0.4);
 
-    // Platform base
     const pWidth = 3.5;
     const pLength = 12.0;
     const pHeight = 0.6;
@@ -699,7 +1198,6 @@ export class BrickFactory {
     platform.receiveShadow = true;
     group.add(platform);
 
-    // Platform awning / shelter roof
     const roofPillars = [-4.0, 0.0, 4.0];
     const pillarGeo = new THREE.CylinderGeometry(0.12, 0.12, 2.5, 8);
     roofPillars.forEach((zPos) => {
@@ -716,21 +1214,18 @@ export class BrickFactory {
     roof.castShadow = true;
     group.add(roof);
 
-    // Station Signboard: "ESTACIÓ DEL BOSC"
     const signBoardGeo = new THREE.BoxGeometry(2.4, 0.6, 0.1);
     const signBoard = new THREE.Mesh(signBoardGeo, whiteMat);
     signBoard.position.set(-0.8, pHeight + 2.1, 0);
     signBoard.castShadow = true;
     group.add(signBoard);
 
-    // Station Clock
     const clockGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16);
     const clock = new THREE.Mesh(clockGeo, goldMat);
     clock.rotation.x = Math.PI / 2;
     clock.position.set(-0.8, pHeight + 2.7, 4.5);
     group.add(clock);
 
-    // Platform Bench
     const benchSeatGeo = new THREE.BoxGeometry(0.6, 0.1, 2.0);
     const benchSeat = new THREE.Mesh(benchSeatGeo, woodMat);
     benchSeat.position.set(-1.0, pHeight + 0.35, -2.0);

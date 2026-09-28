@@ -114,12 +114,14 @@ export class TrainActor {
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.15, 16);
     [-1.0, 1.0].forEach((side) => {
       [-5.3, -3.7].forEach((zPos) => {
+        const wGroup = new THREE.Group();
+        wGroup.position.set(side * 1.0, 0.38, zPos);
         const wMesh = new THREE.Mesh(wheelGeo, blackMat);
         wMesh.rotation.z = Math.PI / 2;
-        wMesh.position.set(side * 1.0, 0.38, zPos);
         wMesh.castShadow = true;
-        this.tenderGroup.add(wMesh);
-        this.tenderWheels.push(wMesh);
+        wGroup.add(wMesh);
+        this.tenderGroup.add(wGroup);
+        this.tenderWheels.push(wGroup as unknown as THREE.Mesh);
       });
     });
 
@@ -171,12 +173,14 @@ export class TrainActor {
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.15, 16);
     [-1.0, 1.0].forEach((side) => {
       [-10.2, -7.2].forEach((zPos) => {
+        const wGroup = new THREE.Group();
+        wGroup.position.set(side * 1.0, 0.38, zPos);
         const wMesh = new THREE.Mesh(wheelGeo, blackMat);
         wMesh.rotation.z = Math.PI / 2;
-        wMesh.position.set(side * 1.0, 0.38, zPos);
         wMesh.castShadow = true;
-        this.coachGroup.add(wMesh);
-        this.coachWheels.push(wMesh);
+        wGroup.add(wMesh);
+        this.coachGroup.add(wGroup);
+        this.coachWheels.push(wGroup as unknown as THREE.Mesh);
       });
     });
 
@@ -290,15 +294,34 @@ export class TrainActor {
     this.updateSmokeParticles(clampedDt);
   }
 
-  private updatePositionOnTrack(): void {
+  public updatePositionOnTrack(): void {
     const transform = this.trackNetwork.getTransformAtDistance(this.distance);
     this.root.position.copy(transform.position);
 
     // Smooth chassis sway based on speed
     const swayAngle = Math.sin(this.totalWheelRotation * 1.5) * (Math.abs(this.speed) / this.maxSpeed) * 0.03;
-    const euler = transform.rotation.clone();
-    euler.z += swayAngle;
-    this.root.rotation.copy(euler);
+    this.root.quaternion.copy(transform.quaternion);
+    this.root.rotateZ(swayAngle);
+  }
+
+  public snapToClosestTrackPoint(worldPos: THREE.Vector3): void {
+    const len = this.trackNetwork.getTotalLength();
+    let bestDist = 0;
+    let minDistanceSq = Infinity;
+    const samples = 120;
+    for (let i = 0; i < samples; i++) {
+      const d = (i / samples) * len;
+      const pt = this.trackNetwork.getTransformAtDistance(d).position;
+      const distSq = pt.distanceToSquared(worldPos);
+      if (distSq < minDistanceSq) {
+        minDistanceSq = distSq;
+        bestDist = d;
+      }
+    }
+    this.distance = bestDist;
+    this.speed = 0;
+    this.throttle = 0;
+    this.updatePositionOnTrack();
   }
 
   private updateSmokeParticles(dt: number): void {

@@ -1,10 +1,14 @@
+import * as THREE from 'three';
 import { TrainActor } from '../game/TrainActor';
+import { TrackNetwork } from '../engine/TrackNetwork';
 import type { CameraViewMode } from '../engine/SceneController';
 import { soundSynth } from '../engine/SoundSynth';
+import { voiceHandler } from '../engine/VoiceHandler';
 
 export class TrainControlsUI {
   private container: HTMLElement;
   private trainActor: TrainActor;
+  private trackNetwork: TrackNetwork;
   private onWhistle: () => void;
   private onCameraChange: (mode: CameraViewMode) => void;
   private onSwitchToBuild: () => void;
@@ -14,13 +18,16 @@ export class TrainControlsUI {
   private speedNeedle: HTMLElement | null = null;
   private whistleCord: HTMLElement | null = null;
   private directionToggleBtn: HTMLElement | null = null;
+  private routeCustomText: HTMLElement | null = null;
 
   private isReverse: boolean = false;
   private currentCameraMode: CameraViewMode = 'chase';
+  private currentRoute: 'circuit' | 'custom' = 'circuit';
 
   constructor(
     parent: HTMLElement,
     trainActor: TrainActor,
+    trackNetwork: TrackNetwork,
     callbacks: {
       onWhistle: () => void;
       onCameraChange: (mode: CameraViewMode) => void;
@@ -28,6 +35,7 @@ export class TrainControlsUI {
     }
   ) {
     this.trainActor = trainActor;
+    this.trackNetwork = trackNetwork;
     this.onWhistle = callbacks.onWhistle;
     this.onCameraChange = callbacks.onCameraChange;
     this.onSwitchToBuild = callbacks.onSwitchToBuild;
@@ -43,8 +51,9 @@ export class TrainControlsUI {
   private render(): void {
     this.container.innerHTML = `
       <div class="train-hud">
-        <!-- Top bar: Camera view & Exit button -->
+        <!-- Top bar: Camera view & Route Selector & Exit button -->
         <div class="train-hud-top">
+          <!-- Camera View Mode Pills -->
           <div class="camera-mode-pills">
             <button class="hud-pill ${this.currentCameraMode === 'chase' ? 'active' : ''}" data-cam="chase" title="Càmera de Persecució">
               <span>🎥 Persecució</span>
@@ -54,6 +63,16 @@ export class TrainControlsUI {
             </button>
             <button class="hud-pill ${this.currentCameraMode === 'orbit' ? 'active' : ''}" data-cam="orbit" title="Càmera Lliure">
               <span>🌐 Lliure</span>
+            </button>
+          </div>
+
+          <!-- Route Selector: Circuit Principal vs Vies Noves Lego City -->
+          <div class="route-mode-pills">
+            <button class="hud-pill route-pill ${this.currentRoute === 'circuit' ? 'active' : ''}" id="btn-route-circuit" title="Circuit Principal del Bosc">
+              <span>🛤️ Circuit Gran</span>
+            </button>
+            <button class="hud-pill route-pill ${this.currentRoute === 'custom' ? 'active' : ''}" id="btn-route-custom" title="Vies Construïdes Lego City">
+              <span id="route-custom-text">⚡ Vies Noves</span>
             </button>
           </div>
 
@@ -198,6 +217,37 @@ export class TrainControlsUI {
       });
     });
 
+    // Route Switching: Circuit Principal
+    const circuitBtn = this.container.querySelector('#btn-route-circuit');
+    circuitBtn?.addEventListener('click', () => {
+      soundSynth.playUIBeep(600);
+      this.currentRoute = 'circuit';
+      this.trackNetwork.setRoute('circuit');
+      this.trainActor.snapToClosestTrackPoint(new THREE.Vector3(-12, 0.4, 0));
+      voiceHandler.speak('De tornada al circuit principal!');
+      this.updateRouteUI();
+    });
+
+    // Route Switching: Custom Lego City Tracks
+    const customBtn = this.container.querySelector('#btn-route-custom');
+    customBtn?.addEventListener('click', () => {
+      const customTracks = this.trackNetwork.getCustomTracks();
+      if (customTracks.length < 2) {
+        soundSynth.playUIBeep(350);
+        voiceHandler.speak('Posa dues o més vies al mode construcció per crear un circuit nou!');
+        return;
+      }
+
+      const success = this.trackNetwork.setRoute('custom');
+      if (success) {
+        soundSynth.playUIBeep(680);
+        this.currentRoute = 'custom';
+        this.trainActor.snapToClosestTrackPoint(customTracks[0].position);
+        voiceHandler.speak('Tren a les teves vies Lego City! Endavant maquinista!');
+        this.updateRouteUI();
+      }
+    });
+
     // Back to Build
     const backBtn = this.container.querySelector('#btn-back-to-build');
     backBtn?.addEventListener('click', () => {
@@ -208,6 +258,15 @@ export class TrainControlsUI {
 
     this.speedGaugeValue = this.container.querySelector('#speed-value');
     this.speedNeedle = this.container.querySelector('#speed-needle');
+    this.routeCustomText = this.container.querySelector('#route-custom-text');
+  }
+
+  private updateRouteUI(): void {
+    const circuitBtn = this.container.querySelector('#btn-route-circuit');
+    const customBtn = this.container.querySelector('#btn-route-custom');
+
+    circuitBtn?.classList.toggle('active', this.currentRoute === 'circuit');
+    customBtn?.classList.toggle('active', this.currentRoute === 'custom');
   }
 
   public update(): void {
@@ -223,6 +282,12 @@ export class TrainControlsUI {
       // Angle: -90 deg (0) to +90 deg (45 kmh)
       const angle = -90 + (kmh / 45) * 180;
       this.speedNeedle.style.transform = `rotate(${angle}deg)`;
+    }
+
+    // Update custom tracks count badge
+    if (this.routeCustomText) {
+      const count = this.trackNetwork.getCustomTracks().length;
+      this.routeCustomText.textContent = count > 0 ? `⚡ Vies Noves (${count})` : '⚡ Vies Noves';
     }
   }
 

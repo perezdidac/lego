@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { BrickFactory, BRICK_DEFS, type BrickShape } from './BrickFactory';
 import { soundSynth } from './SoundSynth';
+import type { TrackNetwork } from './TrackNetwork';
 
 export interface PlacedBrick {
   id: string;
@@ -37,12 +38,17 @@ export class GridSystem {
 
   // Bridge callback
   private onBridgeGapFilled?: (slotIndex: number, brick: THREE.Group) => void;
+  private trackNetwork: TrackNetwork | null = null;
 
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     this.scene = scene;
     this.camera = camera;
     this.createBaseplateAndEnvironment();
     this.updateGhostMesh();
+  }
+
+  public setTrackNetwork(network: TrackNetwork): void {
+    this.trackNetwork = network;
   }
 
   public setBridgeCallback(cb: (slotIndex: number, brick: THREE.Group) => void): void {
@@ -179,36 +185,98 @@ export class GridSystem {
     }
   }
 
+  private instantiateShape(
+    shape: BrickShape,
+    colorHex: string,
+    isGhost: boolean = false,
+    isValidGhost: boolean = true
+  ): THREE.Group {
+    let group: THREE.Group;
+
+    switch (shape) {
+      case 'plate2x2':
+        group = BrickFactory.createFlatTile(2, 2, colorHex, isGhost);
+        break;
+      case 'plate4x4':
+        group = BrickFactory.createPlate(4, 4, colorHex, isGhost);
+        break;
+      case 'slope2x2':
+        group = BrickFactory.createSlopeBrick(2, 2, colorHex, isGhost);
+        break;
+      case 'slope2x4':
+        group = BrickFactory.createSlopeBrick(4, 2, colorHex, isGhost);
+        break;
+      case 'arch1x4':
+        group = BrickFactory.createArchBrick(colorHex, isGhost);
+        break;
+      case 'finestra':
+        group = BrickFactory.createWindow(colorHex, isGhost);
+        break;
+      case 'porta':
+        group = BrickFactory.createDoor(colorHex, isGhost);
+        break;
+      case 'torre2x2':
+        group = BrickFactory.createRoundTower(colorHex, isGhost);
+        break;
+      case 'fanal':
+        group = BrickFactory.createStreetLight();
+        break;
+      case 'barril':
+        group = BrickFactory.createCargoBarrel(colorHex);
+        break;
+      case 'tree_pine':
+        group = BrickFactory.createPineTree(colorHex);
+        break;
+      case 'tree_apple':
+        group = BrickFactory.createAppleTree();
+        break;
+      case 'arbust':
+        group = BrickFactory.createBush();
+        break;
+      case 'flower':
+        group = BrickFactory.createFlower(colorHex);
+        break;
+      case 'minifigure':
+        group = BrickFactory.createMinifigure();
+        break;
+      case 'track_straight':
+        group = BrickFactory.createLegoCityStraightTrack(isGhost);
+        break;
+      case 'track_curve':
+        group = BrickFactory.createLegoCityCurvedTrack(isGhost);
+        break;
+      case 'track_crossing':
+        group = BrickFactory.createLevelCrossing(isGhost);
+        break;
+      case 'track_buffer':
+        group = BrickFactory.createBufferStop(isGhost);
+        break;
+      default: {
+        const def = BRICK_DEFS[shape] || { width: 2, depth: 2 };
+        group = BrickFactory.createStandardBrick(def.width, def.depth, colorHex, isGhost, isValidGhost);
+        break;
+      }
+    }
+
+    if (isGhost) {
+      const ghostMat = BrickFactory.getGhostMaterial(isValidGhost);
+      group.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = ghostMat;
+        }
+      });
+    }
+
+    return group;
+  }
+
   private updateGhostMesh(): void {
     if (this.ghostGroup) {
       this.scene.remove(this.ghostGroup);
       this.ghostGroup = null;
     }
 
-    if (this.currentShape === 'tree_pine') {
-      this.ghostGroup = BrickFactory.createPineTree(this.currentColor);
-      // Apply ghost opacity
-      this.ghostGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = BrickFactory.getGhostMaterial(this.currentGhostValid);
-        }
-      });
-    } else if (this.currentShape === 'flower') {
-      this.ghostGroup = BrickFactory.createFlower(this.currentColor);
-      this.ghostGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = BrickFactory.getGhostMaterial(this.currentGhostValid);
-        }
-      });
-    } else if (this.currentShape === 'slope2x2') {
-      this.ghostGroup = BrickFactory.createSlopeBrick(2, 2, this.currentColor, true);
-    } else if (this.currentShape === 'track_straight') {
-      this.ghostGroup = BrickFactory.createTrackStraight(4.0, true);
-    } else {
-      const def = BRICK_DEFS[this.currentShape] || { width: 2, depth: 2 };
-      this.ghostGroup = BrickFactory.createStandardBrick(def.width, def.depth, this.currentColor, true, this.currentGhostValid);
-    }
-
+    this.ghostGroup = this.instantiateShape(this.currentShape, this.currentColor, true, this.currentGhostValid);
     this.ghostGroup.rotation.y = this.currentRotation;
     this.ghostGroup.visible = false;
     this.scene.add(this.ghostGroup);
@@ -327,19 +395,7 @@ export class GridSystem {
     const { x, y, z, layer } = this.lastSnapCoord;
     const def = BRICK_DEFS[this.currentShape] || { width: 2, depth: 2, heightUnits: 1 };
 
-    let brickGroup: THREE.Group;
-    if (this.currentShape === 'tree_pine') {
-      brickGroup = BrickFactory.createPineTree(this.currentColor);
-    } else if (this.currentShape === 'flower') {
-      brickGroup = BrickFactory.createFlower(this.currentColor);
-    } else if (this.currentShape === 'slope2x2') {
-      brickGroup = BrickFactory.createSlopeBrick(2, 2, this.currentColor);
-    } else if (this.currentShape === 'track_straight') {
-      brickGroup = BrickFactory.createTrackStraight(4.0);
-    } else {
-      brickGroup = BrickFactory.createStandardBrick(def.width, def.depth, this.currentColor);
-    }
-
+    const brickGroup = this.instantiateShape(this.currentShape, this.currentColor, false);
     brickGroup.position.set(x, y, z);
     brickGroup.rotation.y = this.currentRotation;
 
@@ -382,6 +438,17 @@ export class GridSystem {
 
     this.placedBricks.push(placed);
 
+    // Register Lego City modular track with TrackNetwork
+    if (this.currentShape.startsWith('track_') && this.trackNetwork) {
+      this.trackNetwork.registerCustomTrack({
+        id: placed.id,
+        position: new THREE.Vector3(x, y, z),
+        rotationY: this.currentRotation,
+        shape: this.currentShape,
+        mesh: brickGroup
+      });
+    }
+
     // Check if placement filled a bridge slot in Mission 1!
     // Bridge gap is at Z = 15, X in [-2.0, 0, 2.0]
     if (Math.abs(z - 15) < 1.5) {
@@ -420,6 +487,9 @@ export class GridSystem {
     if (brickIndex === -1) return false;
 
     const brick = this.placedBricks[brickIndex];
+    if (brick.shape.startsWith('track_') && this.trackNetwork) {
+      this.trackNetwork.unregisterCustomTrack(brick.mesh);
+    }
     this.scene.remove(brick.mesh);
     this.interactableMeshes = this.interactableMeshes.filter(m => m !== brick.mesh);
     this.placedBricks.splice(brickIndex, 1);
@@ -441,6 +511,9 @@ export class GridSystem {
   public undoLastBrick(): boolean {
     if (this.placedBricks.length === 0) return false;
     const last = this.placedBricks.pop()!;
+    if (last.shape.startsWith('track_') && this.trackNetwork) {
+      this.trackNetwork.unregisterCustomTrack(last.mesh);
+    }
     this.scene.remove(last.mesh);
     this.interactableMeshes = this.interactableMeshes.filter(m => m !== last.mesh);
 
