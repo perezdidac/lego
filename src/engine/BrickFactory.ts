@@ -48,29 +48,29 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   '2x8': { width: 8, depth: 2, heightUnits: 1, nameCatalan: 'Viga 2x8', category: 'bloc', icon: '🧱 2x8' },
 
   // House & Architecture
-  'plate2x2': { width: 2, depth: 2, heightUnits: 0.35, nameCatalan: 'Rajola Llisa 2x2', category: 'casa', icon: '▫️ Rajola' },
-  'plate4x4': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Placa 4x4', category: 'casa', icon: '⬜ Placa' },
+  'plate2x2': { width: 2, depth: 2, heightUnits: 0.33, nameCatalan: 'Rajola Llisa 2x2', category: 'casa', icon: '▫️ Rajola' },
+  'plate4x4': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Placa 4x4', category: 'casa', icon: '⬜ Placa' },
   'slope2x2': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Rampa 2x2', category: 'casa', icon: '📐 Rampa' },
   'slope2x4': { width: 4, depth: 2, heightUnits: 1, nameCatalan: 'Rampa Gran 2x4', category: 'casa', icon: '🏠 Sostre' },
   'arch1x4': { width: 4, depth: 1, heightUnits: 1, nameCatalan: 'Arc de Pont', category: 'casa', icon: '🌉 Arc' },
-  'finestra': { width: 2, depth: 1, heightUnits: 1.2, nameCatalan: 'Finestra', category: 'casa', icon: '🪟 Finestra' },
-  'porta': { width: 2, depth: 1, heightUnits: 2.0, nameCatalan: 'Porta de Casa', category: 'casa', icon: '🚪 Porta' },
-  'torre2x2': { width: 2, depth: 2, heightUnits: 1.5, nameCatalan: 'Torre Rodona', category: 'casa', icon: '🏰 Torre' },
-  'fanal': { width: 1, depth: 1, heightUnits: 2.2, nameCatalan: 'Fanal de Carrer', category: 'casa', icon: '💡 Fanal' },
-  'barril': { width: 1, depth: 1, heightUnits: 1.1, nameCatalan: 'Barril de Càrrega', category: 'casa', icon: '🛢️ Barril' },
+  'finestra': { width: 2, depth: 1, heightUnits: 2, nameCatalan: 'Finestra', category: 'casa', icon: '🪟 Finestra' },
+  'porta': { width: 2, depth: 1, heightUnits: 4, nameCatalan: 'Porta de Casa', category: 'casa', icon: '🚪 Porta' },
+  'torre2x2': { width: 2, depth: 2, heightUnits: 4, nameCatalan: 'Torre Rodona', category: 'casa', icon: '🏰 Torre' },
+  'fanal': { width: 1, depth: 1, heightUnits: 3, nameCatalan: 'Fanal de Carrer', category: 'casa', icon: '💡 Fanal' },
+  'barril': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Barril de Càrrega', category: 'casa', icon: '🛢️ Barril' },
 
   // Lego City Modular Tracks
-  'track_straight': { width: 4, depth: 2, heightUnits: 0.35, nameCatalan: 'Via Recta Lego City', category: 'vies', icon: '🛤️ Via Recta' },
-  'track_curve': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Via Corba 45°', category: 'vies', icon: '🔄 Via Corba' },
-  'track_crossing': { width: 4, depth: 4, heightUnits: 0.35, nameCatalan: 'Pas a Nivell', category: 'vies', icon: '🚧 Pas a Nivell' },
+  'track_straight': { width: 4, depth: 2, heightUnits: 0.33, nameCatalan: 'Via Recta Lego City', category: 'vies', icon: '🛤️ Via Recta' },
+  'track_curve': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Corba 45°', category: 'vies', icon: '🔄 Via Corba' },
+  'track_crossing': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Pas a Nivell', category: 'vies', icon: '🚧 Pas a Nivell' },
   'track_buffer': { width: 2, depth: 2, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
 
   // Nature & Minifigures
   'tree_pine': { width: 2, depth: 2, heightUnits: 3, nameCatalan: 'Avet del Bosc', category: 'natura', icon: '🌲 Avet' },
-  'tree_apple': { width: 3, depth: 3, heightUnits: 3.2, nameCatalan: 'Pomera Fruitera', category: 'natura', icon: '🌳 Pomera' },
-  'arbust': { width: 2, depth: 2, heightUnits: 1.2, nameCatalan: 'Arbust Verd', category: 'natura', icon: '🌿 Arbust' },
-  'flower': { width: 1, depth: 1, heightUnits: 0.8, nameCatalan: 'Flor Bonica', category: 'natura', icon: '🌸 Flor' },
-  'minifigure': { width: 1, depth: 1, heightUnits: 1.8, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' }
+  'tree_apple': { width: 3, depth: 3, heightUnits: 3, nameCatalan: 'Pomera Fruitera', category: 'natura', icon: '🌳 Pomera' },
+  'arbust': { width: 2, depth: 2, heightUnits: 1, nameCatalan: 'Arbust Verd', category: 'natura', icon: '🌿 Arbust' },
+  'flower': { width: 1, depth: 1, heightUnits: 1, nameCatalan: 'Flor Bonica', category: 'natura', icon: '🌸 Flor' },
+  'minifigure': { width: 1, depth: 1, heightUnits: 2, nameCatalan: 'Passatger Minifigura', category: 'natura', icon: '🧑 Passatger' }
 };
 
 export class BrickFactory {
@@ -369,35 +369,57 @@ export class BrickFactory {
 
     const w = 4.0 * this.GRID_UNIT - 0.02;
     const d = 1.0 * this.GRID_UNIT - 0.02;
-    const h = this.BRICK_HEIGHT;
+    const h = this.BRICK_HEIGHT; // Exact 1 brick = 1.2 units
+
+    const topBarH = 0.36;
+    const pillarH = h - topBarH;
+    const pillarW = 1.0;
 
     // Solid top bar
-    const topGeo = new THREE.BoxGeometry(w, 0.45, d);
+    const topGeo = new THREE.BoxGeometry(w, topBarH, d);
     const topMesh = new THREE.Mesh(topGeo, material);
-    topMesh.position.y = h - 0.225;
+    topMesh.position.set(0, h - topBarH / 2, 0);
+    topMesh.castShadow = !isGhost;
+    topMesh.receiveShadow = !isGhost;
     group.add(topMesh);
 
-    // Two side pillars
-    const pillarGeo = new THREE.BoxGeometry(0.85, h - 0.45, d);
+    // Left pillar (1 stud wide)
+    const pillarGeo = new THREE.BoxGeometry(pillarW, pillarH, d);
     const leftP = new THREE.Mesh(pillarGeo, material);
-    leftP.position.set(-w / 2 + 0.425, (h - 0.45) / 2, 0);
+    leftP.position.set(-w / 2 + pillarW / 2, pillarH / 2, 0);
+    leftP.castShadow = !isGhost;
+    leftP.receiveShadow = !isGhost;
+
+    // Right pillar (1 stud wide)
     const rightP = new THREE.Mesh(pillarGeo, material);
-    rightP.position.set(w / 2 - 0.425, (h - 0.45) / 2, 0);
+    rightP.position.set(w / 2 - pillarW / 2, pillarH / 2, 0);
+    rightP.castShadow = !isGhost;
+    rightP.receiveShadow = !isGhost;
     group.add(leftP, rightP);
 
-    // Arch curve under top
-    const archCurveGeo = new THREE.CylinderGeometry(1.2, 1.2, d, 16, 1, false, 0, Math.PI);
-    const archMesh = new THREE.Mesh(archCurveGeo, material);
-    archMesh.rotation.x = Math.PI / 2;
-    archMesh.position.set(0, (h - 0.45), 0);
-    archMesh.scale.set(0.95, 0.4, 1);
+    // Clean curved arch span between pillars (opening x: -1 to +1, y: 0 to pillarH)
+    const archRadius = Math.min(1.0, pillarH);
+    const archShape = new THREE.Shape();
+    archShape.moveTo(-1.0, 0);
+    archShape.lineTo(-1.0, pillarH);
+    archShape.lineTo(1.0, pillarH);
+    archShape.lineTo(1.0, 0);
+    archShape.absarc(0, 0, archRadius, 0, Math.PI, false);
+    archShape.closePath();
+
+    const archGeo = new THREE.ExtrudeGeometry(archShape, { depth: d, bevelEnabled: false });
+    const archMesh = new THREE.Mesh(archGeo, material);
+    archMesh.position.set(0, 0, -d / 2);
+    archMesh.castShadow = !isGhost;
+    archMesh.receiveShadow = !isGhost;
     group.add(archMesh);
 
-    // Studs on top (4 studs)
+    // Studs on top (4 studs at exact positions)
     const { cylinder: studGeo } = this.getStudGeometry();
     for (let i = 0; i < 4; i++) {
       const stud = new THREE.Mesh(studGeo, material);
       stud.position.set(-1.5 + i * 1.0, h + this.STUD_HEIGHT / 2, 0);
+      stud.castShadow = !isGhost;
       group.add(stud);
     }
 
@@ -406,7 +428,7 @@ export class BrickFactory {
   }
 
   /**
-   * Generates a 1x2 Window with glowing glass
+   * Generates a 2x1 Window (exactly 2 bricks high = 2.4 units)
    */
   public static createWindow(colorHex: string, isGhost: boolean = false): THREE.Group {
     const group = new THREE.Group();
@@ -421,21 +443,38 @@ export class BrickFactory {
       emissiveIntensity: 0.3
     });
 
-    const w = 2.0;
-    const d = 1.0;
-    const h = 1.5;
+    const w = 2.0 * this.GRID_UNIT - 0.02;
+    const d = 1.0 * this.GRID_UNIT - 0.02;
+    const h = 2 * this.BRICK_HEIGHT; // Exactly 2 bricks high = 2.4 units!
 
     // Window frame
-    const frameGeo = new THREE.BoxGeometry(w, h, d);
-    const frame = new THREE.Mesh(frameGeo, frameMat);
-    frame.position.y = h / 2;
-    group.add(frame);
+    const frameBorder = 0.24;
+    const railGeo = new THREE.BoxGeometry(w, frameBorder, d);
+    const bottomRail = new THREE.Mesh(railGeo, frameMat);
+    bottomRail.position.set(0, frameBorder / 2, 0);
+    const topRail = new THREE.Mesh(railGeo, frameMat);
+    topRail.position.set(0, h - frameBorder / 2, 0);
+
+    const stileGeo = new THREE.BoxGeometry(frameBorder, h - frameBorder * 2, d);
+    const leftStile = new THREE.Mesh(stileGeo, frameMat);
+    leftStile.position.set(-w / 2 + frameBorder / 2, h / 2, 0);
+    const rightStile = new THREE.Mesh(stileGeo, frameMat);
+    rightStile.position.set(w / 2 - frameBorder / 2, h / 2, 0);
+
+    group.add(bottomRail, topRail, leftStile, rightStile);
 
     // Glass cutout pane
-    const glassGeo = new THREE.BoxGeometry(w * 0.75, h * 0.75, 0.1);
+    const glassGeo = new THREE.BoxGeometry(w - frameBorder * 2, h - frameBorder * 2, 0.12);
     const glass = new THREE.Mesh(glassGeo, glassMat);
     glass.position.set(0, h / 2, 0);
     group.add(glass);
+
+    // Cross mullion bar
+    const hMullion = new THREE.Mesh(new THREE.BoxGeometry(w - frameBorder * 2, 0.08, 0.14), frameMat);
+    hMullion.position.set(0, h / 2, 0);
+    const vMullion = new THREE.Mesh(new THREE.BoxGeometry(0.08, h - frameBorder * 2, 0.14), frameMat);
+    vMullion.position.set(0, h / 2, 0);
+    group.add(hMullion, vMullion);
 
     // 2 top studs
     const { cylinder: studGeo } = this.getStudGeometry();
@@ -450,7 +489,7 @@ export class BrickFactory {
   }
 
   /**
-   * Generates a 1x2 Door with door frame and golden handle
+   * Generates a 2x1 Door (exactly 4 bricks high = 4.8 units, authentic Lego door frame)
    */
   public static createDoor(colorHex: string, isGhost: boolean = false): THREE.Group {
     const group = new THREE.Group();
@@ -458,31 +497,51 @@ export class BrickFactory {
     const doorMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
     const goldMat = this.getMaterial('#FAC80A', 0.2, 0.5);
 
-    const w = 2.0;
-    const d = 1.0;
-    const h = 2.4;
+    const w = 2.0 * this.GRID_UNIT - 0.02;
+    const d = 1.0 * this.GRID_UNIT - 0.02;
+    const h = 4 * this.BRICK_HEIGHT; // Exactly 4 bricks high = 4.8 units!
 
-    // Outer door frame
-    const topFrame = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, d), frameMat);
-    topFrame.position.y = h - 0.15;
-    const leftFrame = new THREE.Mesh(new THREE.BoxGeometry(0.3, h - 0.3, d), frameMat);
-    leftFrame.position.set(-w / 2 + 0.15, (h - 0.3) / 2, 0);
-    const rightFrame = leftFrame.clone();
-    rightFrame.position.x = w / 2 - 0.15;
-    group.add(topFrame, leftFrame, rightFrame);
+    const frameThick = 0.28;
+    const topFrameH = 0.36;
 
-    // Door panel inside
-    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, h - 0.3, 0.3), doorMat);
-    doorPanel.position.set(0, (h - 0.3) / 2, 0);
+    // Outer door frame top lintel
+    const topFrame = new THREE.Mesh(new THREE.BoxGeometry(w, topFrameH, d), frameMat);
+    topFrame.position.y = h - topFrameH / 2;
+    topFrame.castShadow = !isGhost;
+    topFrame.receiveShadow = !isGhost;
+
+    // Left and right frame uprights
+    const postH = h - topFrameH;
+    const postGeo = new THREE.BoxGeometry(frameThick, postH, d);
+    const leftFrame = new THREE.Mesh(postGeo, frameMat);
+    leftFrame.position.set(-w / 2 + frameThick / 2, postH / 2, 0);
+    leftFrame.castShadow = !isGhost;
+
+    const rightFrame = new THREE.Mesh(postGeo, frameMat);
+    rightFrame.position.set(w / 2 - frameThick / 2, postH / 2, 0);
+    rightFrame.castShadow = !isGhost;
+
+    // Threshold bottom step
+    const thresholdGeo = new THREE.BoxGeometry(w, 0.12, d);
+    const threshold = new THREE.Mesh(thresholdGeo, frameMat);
+    threshold.position.y = 0.06;
+
+    group.add(topFrame, leftFrame, rightFrame, threshold);
+
+    // Recessed door panel inside
+    const doorW = w - frameThick * 2;
+    const doorH = postH - 0.12;
+    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.32), doorMat);
+    doorPanel.position.set(0, 0.12 + doorH / 2, 0);
     doorPanel.castShadow = true;
     group.add(doorPanel);
 
-    // Golden handle knob
-    const knob = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), goldMat);
-    knob.position.set(0.38, 1.1, 0.2);
+    // Golden handle knob (placed comfortably at y = 2.1)
+    const knob = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), goldMat);
+    knob.position.set(doorW / 2 - 0.22, 2.1, 0.20);
     group.add(knob);
 
-    // Top studs
+    // Top studs (2 studs at exact height h + STUD_HEIGHT / 2)
     const { cylinder: studGeo } = this.getStudGeometry();
     [-0.5, 0.5].forEach((x) => {
       const stud = new THREE.Mesh(studGeo, frameMat);
@@ -495,22 +554,32 @@ export class BrickFactory {
   }
 
   /**
-   * Generates a 2x2 Round Cylinder Tower Brick
+   * Generates a 2x2 Round Cylinder Tower Brick (exactly 4 bricks high = 4.8 units, Lego Pillar 2x2x4)
    */
   public static createRoundTower(colorHex: string, isGhost: boolean = false): THREE.Group {
     const group = new THREE.Group();
     const material = isGhost ? this.getGhostMaterial(true) : this.getMaterial(colorHex);
 
     const radius = 0.95;
-    const h = 1.5;
-    const cylGeo = new THREE.CylinderGeometry(radius, radius, h, 20);
+    const h = 4 * this.BRICK_HEIGHT; // Exactly 4 bricks high = 4.8 units!
+    const cylGeo = new THREE.CylinderGeometry(radius, radius, h, 24);
     const cyl = new THREE.Mesh(cylGeo, material);
     cyl.position.y = h / 2;
     cyl.castShadow = true;
     cyl.receiveShadow = true;
     group.add(cyl);
 
-    // 4 studs on top
+    // Fluted decorative rings along the tower body at brick levels 1, 2, 3
+    const ringMat = material;
+    [1, 2, 3].forEach((lvl) => {
+      const ringGeo = new THREE.TorusGeometry(radius + 0.02, 0.035, 8, 24);
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = lvl * this.BRICK_HEIGHT;
+      group.add(ring);
+    });
+
+    // 4 studs on top at y = h + STUD_HEIGHT / 2
     const { cylinder: studGeo } = this.getStudGeometry();
     [-0.45, 0.45].forEach((x) => {
       [-0.45, 0.45].forEach((z) => {
@@ -525,7 +594,7 @@ export class BrickFactory {
   }
 
   /**
-   * Generates a City Street Light / Signal Lamp
+   * Generates a City Street Light / Signal Lamp (3 bricks high = 3.6 units)
    */
   public static createStreetLight(): THREE.Group {
     const group = new THREE.Group();
@@ -537,62 +606,65 @@ export class BrickFactory {
       roughness: 0.1
     });
 
+    const h = 3 * this.BRICK_HEIGHT; // Exactly 3 bricks high = 3.6 units!
+
     // Base post
-    const postGeo = new THREE.CylinderGeometry(0.1, 0.14, 2.4, 8);
+    const postGeo = new THREE.CylinderGeometry(0.1, 0.14, h, 8);
     const post = new THREE.Mesh(postGeo, blackMat);
-    post.position.y = 1.2;
+    post.position.y = h / 2;
     group.add(post);
 
     // Lamp head
     const headGeo = new THREE.ConeGeometry(0.35, 0.25, 8);
     const head = new THREE.Mesh(headGeo, blackMat);
-    head.position.set(0.3, 2.4, 0);
+    head.position.set(0.3, h, 0);
     head.rotation.z = Math.PI;
 
     // Glowing bulb
     const bulbGeo = new THREE.SphereGeometry(0.18, 12, 10);
     const bulb = new THREE.Mesh(bulbGeo, glowMat);
-    bulb.position.set(0.3, 2.25, 0);
+    bulb.position.set(0.3, h - 0.15, 0);
     group.add(head, bulb);
 
-    group.userData = { type: 'fanal', widthStuds: 1, depthStuds: 1, height: 2.5 };
+    group.userData = { type: 'fanal', widthStuds: 1, depthStuds: 1, height: h };
     return group;
   }
 
   /**
-   * Generates a Cargo Barrel with studs
+   * Generates a Cargo Barrel with studs (exactly 1 brick high = 1.2 units)
    */
   public static createCargoBarrel(colorHex: string = '#6F4E37'): THREE.Group {
     const group = new THREE.Group();
     const woodMat = this.getMaterial(colorHex, 0.4, 0.1);
     const bandMat = this.getMaterial('#1B1B1B', 0.3, 0.4);
 
-    const barrelGeo = new THREE.CylinderGeometry(0.38, 0.34, 1.0, 14);
+    const h = this.BRICK_HEIGHT; // Exactly 1 brick high = 1.2 units!
+    const barrelGeo = new THREE.CylinderGeometry(0.42, 0.38, h, 16);
     const barrel = new THREE.Mesh(barrelGeo, woodMat);
-    barrel.position.y = 0.5;
+    barrel.position.y = h / 2;
     barrel.castShadow = true;
     group.add(barrel);
 
     // Top stud
     const { cylinder: studGeo } = this.getStudGeometry();
     const stud = new THREE.Mesh(studGeo, woodMat);
-    stud.position.set(0, 1.0 + this.STUD_HEIGHT / 2, 0);
+    stud.position.set(0, h + this.STUD_HEIGHT / 2, 0);
     group.add(stud);
 
     // Black metal hoops
-    [-0.25, 0.25].forEach((yOff) => {
-      const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.37, 0.03, 6, 16), bandMat);
+    [h * 0.25, h * 0.75].forEach((yPos) => {
+      const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 6, 16), bandMat);
       hoop.rotation.x = Math.PI / 2;
-      hoop.position.y = 0.5 + yOff;
+      hoop.position.y = yPos;
       group.add(hoop);
     });
 
-    group.userData = { type: 'barril', widthStuds: 1, depthStuds: 1, height: 1.1 };
+    group.userData = { type: 'barril', widthStuds: 1, depthStuds: 1, height: h };
     return group;
   }
 
   /**
-   * Generates a Deciduous Apple Tree (round leafy treetop with red apples!)
+   * Generates a Deciduous Apple Tree (round leafy treetop with red apples, 3 bricks high = 3.6 units)
    */
   public static createAppleTree(): THREE.Group {
     const group = new THREE.Group();
@@ -600,25 +672,26 @@ export class BrickFactory {
     const leavesMat = this.getMaterial('#2E7D32', 0.3, 0.05);
     const appleMat = this.getMaterial('#D11A2A', 0.15, 0.05);
 
-    // Trunk
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, 1.4, 8), trunkMat);
-    trunk.position.y = 0.7;
+    const h = 3 * this.BRICK_HEIGHT; // Exactly 3 bricks high = 3.6 units!
+    const trunkH = 1.5;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, trunkH, 8), trunkMat);
+    trunk.position.y = trunkH / 2;
     trunk.castShadow = true;
     group.add(trunk);
 
-    // Round leafy crown (cluster of spheres)
-    const crownCenter = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4, 1), leavesMat);
-    crownCenter.position.y = 2.2;
+    // Round leafy crown
+    const crownCenter = new THREE.Mesh(new THREE.DodecahedronGeometry(1.3, 1), leavesMat);
+    crownCenter.position.y = 2.3;
     crownCenter.castShadow = true;
     group.add(crownCenter);
 
     // Red Apples dotted around crown
     const applePositions = [
-      { x: 0.9, y: 2.1, z: 0.6 },
-      { x: -0.8, y: 2.3, z: 0.7 },
-      { x: 0.3, y: 2.5, z: -1.0 },
-      { x: -0.7, y: 1.8, z: -0.8 },
-      { x: 0.8, y: 1.9, z: -0.6 }
+      { x: 0.9, y: 2.2, z: 0.6 },
+      { x: -0.8, y: 2.4, z: 0.7 },
+      { x: 0.3, y: 2.6, z: -0.9 },
+      { x: -0.7, y: 1.9, z: -0.7 },
+      { x: 0.8, y: 2.0, z: -0.6 }
     ];
 
     applePositions.forEach((p) => {
@@ -627,21 +700,22 @@ export class BrickFactory {
       group.add(apple);
     });
 
-    group.userData = { type: 'tree_apple', widthStuds: 3, depthStuds: 3, height: 3.2 };
+    group.userData = { type: 'tree_apple', widthStuds: 3, depthStuds: 3, height: h };
     return group;
   }
 
   /**
-   * Generates a Garden Shrub / Bush
+   * Generates a Garden Shrub / Bush (1 brick high = 1.2 units)
    */
   public static createBush(): THREE.Group {
     const group = new THREE.Group();
     const leavesMat = this.getMaterial('#237841', 0.35, 0.05);
     const flowerMat = this.getMaterial('#FAC80A', 0.2, 0.05);
 
-    const mainGeo = new THREE.DodecahedronGeometry(0.7, 1);
+    const h = this.BRICK_HEIGHT;
+    const mainGeo = new THREE.DodecahedronGeometry(0.65, 1);
     const bush = new THREE.Mesh(mainGeo, leavesMat);
-    bush.position.y = 0.55;
+    bush.position.y = h / 2;
     bush.scale.set(1.4, 0.8, 1.2);
     bush.castShadow = true;
     group.add(bush);
@@ -657,27 +731,29 @@ export class BrickFactory {
       group.add(f);
     });
 
-    group.userData = { type: 'arbust', widthStuds: 2, depthStuds: 2, height: 1.1 };
+    group.userData = { type: 'arbust', widthStuds: 2, depthStuds: 2, height: h };
     return group;
   }
 
   /**
-   * Generates a miniature pine tree
+   * Generates a miniature pine tree (3 bricks high = 3.6 units)
    */
   public static createPineTree(colorHex: string = '#237841'): THREE.Group {
     const group = new THREE.Group();
     const trunkMat = this.getMaterial('#5D4037', 0.7, 0.0);
     const foliageMat = this.getMaterial(colorHex, 0.25, 0.02);
 
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 1.2, 10), trunkMat);
-    trunk.position.y = 0.6;
+    const h = 3 * this.BRICK_HEIGHT; // Exactly 3 bricks high = 3.6 units!
+    const trunkH = 1.4;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.3, trunkH, 10), trunkMat);
+    trunk.position.y = trunkH / 2;
     trunk.castShadow = true;
     group.add(trunk);
 
     const layers = [
-      { rBot: 1.4, rTop: 0.6, h: 0.9, y: 1.2 },
-      { rBot: 1.1, rTop: 0.35, h: 0.85, y: 1.85 },
-      { rBot: 0.75, rTop: 0.05, h: 0.8, y: 2.45 }
+      { rBot: 1.4, rTop: 0.6, h: 1.0, y: 1.3 },
+      { rBot: 1.1, rTop: 0.35, h: 0.95, y: 2.1 },
+      { rBot: 0.75, rTop: 0.05, h: 0.9, y: 2.9 }
     ];
 
     layers.forEach((layer) => {
@@ -687,7 +763,7 @@ export class BrickFactory {
       group.add(cone);
     });
 
-    group.userData = { type: 'tree_pine', widthStuds: 2, depthStuds: 2, height: 3.0 };
+    group.userData = { type: 'tree_pine', widthStuds: 2, depthStuds: 2, height: h };
     return group;
   }
 

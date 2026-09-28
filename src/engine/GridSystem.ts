@@ -336,8 +336,29 @@ export class GridSystem {
       snapX = Math.round(point.x + (effWidth % 2 === 0 ? 0.5 : 0)) - (effWidth % 2 === 0 ? 0.5 : 0);
       snapZ = Math.round(point.z + (effDepth % 2 === 0 ? 0.5 : 0)) - (effDepth % 2 === 0 ? 0.5 : 0);
 
-      if (normal.y > 0.5) {
-        const hUnit = BrickFactory.BRICK_HEIGHT;
+      // Identify if an existing placed brick was intersected
+      let hitBrick: PlacedBrick | undefined;
+      for (const b of this.placedBricks) {
+        if (b.mesh === hit.object || b.mesh.getObjectById(hit.object.id)) {
+          hitBrick = b;
+          break;
+        }
+      }
+
+      const hUnit = BrickFactory.BRICK_HEIGHT;
+      if (hitBrick) {
+        const hitDef = BRICK_DEFS[hitBrick.shape] || { width: 2, depth: 2, heightUnits: 1 };
+        const hitHeightLayers = Math.max(1, Math.round(hitDef.heightUnits || 1));
+        if (normal.y > 0.4) {
+          // Hovering over top face/studs: snap cleanly to the layer immediately on top of the entire piece!
+          layer = hitBrick.gridY + hitHeightLayers;
+          snapY = layer * hUnit;
+        } else {
+          // Hovering on the side face of a piece
+          layer = Math.max(0, Math.floor((point.y + 0.05) / hUnit));
+          snapY = layer * hUnit;
+        }
+      } else if (normal.y > 0.5) {
         layer = Math.max(0, Math.floor((point.y + 0.05) / hUnit));
         snapY = layer * hUnit;
       } else {
@@ -352,8 +373,9 @@ export class GridSystem {
     this.ghostGroup.rotation.y = this.currentRotation;
     this.ghostGroup.visible = true;
 
-    // Collision validation check
-    const isValid = isNearBridge || this.checkPlacementValidity(snapX, layer, snapZ, effWidth, effDepth);
+    // Collision validation check across all vertical layers of the incoming shape
+    const incomingLayers = Math.max(1, Math.round(def.heightUnits || 1));
+    const isValid = isNearBridge || this.checkPlacementValidity(snapX, layer, snapZ, effWidth, effDepth, incomingLayers);
     if (isValid !== this.currentGhostValid) {
       this.currentGhostValid = isValid;
       this.ghostGroup.traverse((child) => {
@@ -364,19 +386,28 @@ export class GridSystem {
     }
   }
 
-  private checkPlacementValidity(snapX: number, layer: number, snapZ: number, width: number, depth: number): boolean {
+  private checkPlacementValidity(
+    snapX: number,
+    layer: number,
+    snapZ: number,
+    width: number,
+    depth: number,
+    heightLayers: number = 1
+  ): boolean {
     const halfW = width / 2;
     const halfD = depth / 2;
 
     // Check bounds
     if (Math.abs(snapX) > 17 || Math.abs(snapZ) > 17) return false;
 
-    // Check against existing placed bricks in occupancy map
-    for (let x = -Math.floor(halfW); x < Math.ceil(halfW); x++) {
-      for (let z = -Math.floor(halfD); z < Math.ceil(halfD); z++) {
-        const key = `${Math.round(snapX + x)},${layer},${Math.round(snapZ + z)}`;
-        if (this.gridOccupancy.has(key)) {
-          return false;
+    // Check against existing placed bricks across all vertical layers
+    for (let l = layer; l < layer + heightLayers; l++) {
+      for (let x = -Math.floor(halfW); x < Math.ceil(halfW); x++) {
+        for (let z = -Math.floor(halfD); z < Math.ceil(halfD); z++) {
+          const key = `${Math.round(snapX + x)},${l},${Math.round(snapZ + z)}`;
+          if (this.gridOccupancy.has(key)) {
+            return false;
+          }
         }
       }
     }
@@ -413,7 +444,7 @@ export class GridSystem {
     this.scene.add(brickGroup);
     this.interactableMeshes.push(brickGroup);
 
-    // Register occupancy
+    // Register occupancy across all vertical layers the piece spans
     const placed: PlacedBrick = {
       id: `brick_${Date.now()}_${Math.random()}`,
       shape: this.currentShape,
@@ -428,11 +459,14 @@ export class GridSystem {
     const isRotated = Math.round(this.currentRotation / (Math.PI / 2)) % 2 !== 0;
     const effWidth = isRotated ? def.depth : def.width;
     const effDepth = isRotated ? def.width : def.depth;
+    const heightLayers = Math.max(1, Math.round(def.heightUnits || 1));
 
-    for (let ix = -Math.floor(effWidth / 2); ix < Math.ceil(effWidth / 2); ix++) {
-      for (let iz = -Math.floor(effDepth / 2); iz < Math.ceil(effDepth / 2); iz++) {
-        const key = `${Math.round(x + ix)},${layer},${Math.round(z + iz)}`;
-        this.gridOccupancy.set(key, placed);
+    for (let l = layer; l < layer + heightLayers; l++) {
+      for (let ix = -Math.floor(effWidth / 2); ix < Math.ceil(effWidth / 2); ix++) {
+        for (let iz = -Math.floor(effDepth / 2); iz < Math.ceil(effDepth / 2); iz++) {
+          const key = `${Math.round(x + ix)},${l},${Math.round(z + iz)}`;
+          this.gridOccupancy.set(key, placed);
+        }
       }
     }
 
