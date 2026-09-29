@@ -8,6 +8,8 @@ import { PaletteUI } from '../ui/PaletteUI';
 import { TrainControlsUI } from '../ui/TrainControlsUI';
 import { MissionCardUI } from '../ui/MissionCardUI';
 import { BlueprintsModalUI } from '../ui/BlueprintsModalUI';
+import { WordBookModalUI } from '../ui/WordBookModalUI';
+import { WordBalloonUI } from '../ui/WordBalloonUI';
 import { voiceHandler } from '../engine/VoiceHandler';
 import { soundSynth } from '../engine/SoundSynth';
 
@@ -26,9 +28,16 @@ export class GameManager {
   private trainControlsUI: TrainControlsUI;
   public readonly missionCardUI: MissionCardUI;
   private blueprintsModalUI: BlueprintsModalUI;
+  private wordBookModalUI: WordBookModalUI;
+  private wordBalloonUI: WordBalloonUI;
 
   private currentMode: GameMode = 'BUILD';
   private isDeleteMode: boolean = false;
+
+  // Passengers & Station Boarding
+  private passengersCount: number = 0;
+  private stationStopTimer: number = 0;
+  private hasBoardedAtCurrentStop: boolean = false;
 
   // Pointer / Touch tracking
   private pointerNDC: THREE.Vector2 = new THREE.Vector2(-999, -999);
@@ -93,6 +102,14 @@ export class GameManager {
       }
     });
 
+    // Word Balloon UI for interactive Catalan flashcards
+    this.wordBalloonUI = new WordBalloonUI(uiLayer);
+
+    // Word Book Modal UI for collectible sticker album
+    this.wordBookModalUI = new WordBookModalUI(document.body, (card) => {
+      this.wordBalloonUI.showCard(card);
+    });
+
     // Top Mission Card & Catalan Narrator Header (sits at top of screen)
     this.missionCardUI = new MissionCardUI(uiLayer, this.missionManager, {
       onMissionSelect: (id: MissionId) => {
@@ -115,8 +132,20 @@ export class GameManager {
       },
       onBlueprintsToggle: () => {
         this.blueprintsModalUI.open();
+      },
+      onWordBookToggle: () => {
+        this.wordBookModalUI.open();
       }
     });
+
+    // Whistle animal and scenery reaction hook
+    this.trainActor.onWhistleCallback = () => {
+      const { jumpedCount } = this.gridSystem.reactToWhistle();
+      if (jumpedCount > 0) {
+        soundSynth.playAnimalJump();
+        voiceHandler.speak('Mireu com salten els animals amb el xiulet del tren!');
+      }
+    };
 
     // Bottom Building Palette UI (sits at bottom of screen)
     this.paletteUI = new PaletteUI(uiLayer, {
@@ -248,6 +277,8 @@ export class GameManager {
             const placed = this.gridSystem.placeCurrentBrick();
             if (placed) {
               this.missionManager.handlePiecePlaced(placed.shape);
+              this.wordBalloonUI.showForShape(placed.shape);
+              this.wordBookModalUI.unlockWord(placed.shape);
             } else {
               // Tap on existing piece: animals, props, minifigures interact!
               const hit = this.gridSystem.interactWithBrickAt(this.pointerNDC);
@@ -293,46 +324,9 @@ export class GameManager {
   }
 
   private handleBrickInteraction(shape: string): void {
-    switch (shape) {
-      case 'vaca':
-        soundSynth.playCowMoo();
-        voiceHandler.speak('Muuuu! Hola vaqueta bonica!');
-        break;
-      case 'ovella':
-        soundSynth.playSheepBaa();
-        voiceHandler.speak('Beeee! Sóc una ovelleta suau!');
-        break;
-      case 'anec':
-        soundSynth.playDuckQuack();
-        voiceHandler.speak('Quac-quac! Cuac, cuac!');
-        break;
-      case 'rellotge':
-        soundSynth.playStationBell();
-        voiceHandler.speak('Ding-dong! Són les tres en punt!');
-        break;
-      case 'minifigure':
-        soundSynth.playBrickSnap(1.4);
-        voiceHandler.speak('Hola maquinista! Bon viatge en tren!');
-        break;
-      case 'hidrant':
-        soundSynth.playBrickSnap(1.6);
-        voiceHandler.speak('Fssshh! Aigua per als bombers!');
-        break;
-      case 'senyera':
-        voiceHandler.speak('Visca! La bandera catalana ondeja amb alegria!');
-        break;
-      case 'tree_apple':
-        soundSynth.playBrickSnap(1.2);
-        voiceHandler.speak('Pomes vermelles i dolces del nostre jardí!');
-        break;
-      case 'track_station':
-        soundSynth.playStationBell();
-        voiceHandler.speak('Atenció passatgers, el tren arriba a l\'estació!');
-        break;
-      default:
-        soundSynth.playBrickSnap(1.1);
-        break;
-    }
+    // Show lively Catalan word flashcard & unlock in sticker album!
+    this.wordBalloonUI.showForShape(shape);
+    this.wordBookModalUI.unlockWord(shape);
   }
 
   private tick(): void {
@@ -352,9 +346,30 @@ export class GameManager {
         dt
       );
       this.trainControlsUI.update();
+
+      // Station passenger boarding detection:
+      const trainPos = this.trainActor.root.position;
+      const isNearStation = (Math.abs(trainPos.x - (-12)) < 4.5 && Math.abs(trainPos.z) < 6.5);
+      const isStopped = Math.abs(this.trainActor.speed) < 0.6;
+
+      if (isNearStation && isStopped) {
+        this.stationStopTimer += dt;
+        if (this.stationStopTimer > 2.0 && !this.hasBoardedAtCurrentStop) {
+          this.hasBoardedAtCurrentStop = true;
+          this.passengersCount += Math.floor(Math.random() * 2) + 1;
+          soundSynth.playStationBell();
+          soundSynth.playCheer();
+          this.trainControlsUI.setPassengersCount(this.passengersCount);
+          voiceHandler.speak(`Atenció viatgers! Estació de la Vall! Han pujat passatgers! Ara som ${this.passengersCount} al tren!`);
+          this.wordBalloonUI.showForShape('minifigure');
+        }
+      } else if (!isStopped) {
+        this.stationStopTimer = 0;
+        this.hasBoardedAtCurrentStop = false;
+      }
     }
 
-    // 3. Update Grid animations
+    // 3. Update Grid living animations (bobbing ducks, flapping flags)
     this.gridSystem.update(dt);
 
     // 4. Update Mission Manager triggers

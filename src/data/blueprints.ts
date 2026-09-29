@@ -107,5 +107,96 @@ export const BLUEPRINTS: BlueprintDefinition[] = [
       { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: 2.5, gridY: 0, gridZ: 10.5, rotationY: 0 },
       { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: -2.5, gridY: 0, gridZ: 10.5, rotationY: 0 }
     ]
+  },
+  {
+    id: 'castell_catala',
+    title: '🏰 El Castell Medieval Català',
+    description: 'Torres altes, teulades còniques, merlets de defensa, arcs de pedra i la Senyera d\'honor!',
+    icon: '🏰',
+    bricks: [
+      // 1. Two Main Towers
+      { shape: 'torre2x2', colorHex: '#8A9299', gridX: -6, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'teulada_con', colorHex: '#D11A2A', gridX: -6, gridY: 4, gridZ: -6, rotationY: 0 },
+      { shape: 'senyera', colorHex: '#FAC80A', gridX: -6.5, gridY: 6, gridZ: -6.5, rotationY: 0 },
+
+      { shape: 'torre2x2', colorHex: '#8A9299', gridX: 2, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'teulada_con', colorHex: '#D11A2A', gridX: 2, gridY: 4, gridZ: -6, rotationY: 0 },
+      { shape: 'senyera', colorHex: '#FAC80A', gridX: 1.5, gridY: 6, gridZ: -6.5, rotationY: 0 },
+
+      // 2. Central Gate & Walls
+      { shape: 'porta', colorHex: '#8D6E63', gridX: -2, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'merlet', colorHex: '#8A9299', gridX: -2, gridY: 4, gridZ: -6, rotationY: 0 },
+
+      // 3. Castle Bridge & Moat
+      { shape: 'arch1x4', colorHex: '#8A9299', gridX: -2, gridY: 0, gridZ: -2, rotationY: 0 },
+      { shape: 'fanal', colorHex: '#1B1B1B', gridX: -5.5, gridY: 0, gridZ: -2.5, rotationY: 0 },
+      { shape: 'fanal', colorHex: '#1B1B1B', gridX: 1.5, gridY: 0, gridZ: -2.5, rotationY: 0 },
+
+      // 4. Courtyard Trees & Minifigures
+      { shape: 'minifigure', colorHex: '#D11A2A', gridX: -2.5, gridY: 0, gridZ: 0.5, rotationY: 0 },
+      { shape: 'minifigure', colorHex: '#0055BF', gridX: -0.5, gridY: 0, gridZ: 0.5, rotationY: 0 },
+      { shape: 'tree_pine', colorHex: '#2E7D32', gridX: -10, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'tree_pine', colorHex: '#2E7D32', gridX: 6, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'flower', colorHex: '#FAC80A', gridX: -4.5, gridY: 0, gridZ: 2.5, rotationY: 0 },
+      { shape: 'flower', colorHex: '#D11A2A', gridX: 0.5, gridY: 0, gridZ: 2.5, rotationY: 0 }
+    ]
+  },
+  {
+    id: 'granja_riu',
+    title: '🦆 La Granja i el Riu dels Ànecs',
+    description: 'Prats verds amb vaques pasturant, ovelletes blanques, ànecs nedant i pomeres!',
+    icon: '🐄',
+    bricks: [
+      // Fenced pastures
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -8, gridY: 0, gridZ: -8, rotationY: 0 },
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -4, gridY: 0, gridZ: -8, rotationY: 0 },
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -2, gridY: 0, gridZ: -6, rotationY: Math.PI / 2 },
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -2, gridY: 0, gridZ: -2, rotationY: Math.PI / 2 },
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -8, gridY: 0, gridZ: 0, rotationY: 0 },
+      { shape: 'tanca', colorHex: '#F4F4F4', gridX: -4, gridY: 0, gridZ: 0, rotationY: 0 },
+
+      // Animals
+      { shape: 'vaca', colorHex: '#F4F4F4', gridX: -6, gridY: 0, gridZ: -4.5, rotationY: 0 },
+      { shape: 'ovella', colorHex: '#F4F4F4', gridX: -3.5, gridY: 0, gridZ: -3.5, rotationY: Math.PI / 4 },
+
+      // Canal with ducks (Z = 15)
+      { shape: 'anec', colorHex: '#FAC80A', gridX: -10.5, gridY: 0, gridZ: 15.5, rotationY: 0 },
+      { shape: 'anec', colorHex: '#FAC80A', gridX: -4.5, gridY: 0, gridZ: 15.5, rotationY: Math.PI / 3 },
+      { shape: 'anec', colorHex: '#FAC80A', gridX: 6.5, gridY: 0, gridZ: 15.5, rotationY: -Math.PI / 4 },
+      { shape: 'anec', colorHex: '#FAC80A', gridX: 12.5, gridY: 0, gridZ: 15.5, rotationY: 0 },
+
+      // Apple orchard & cargo
+      { shape: 'tree_apple', colorHex: '#237841', gridX: 6, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'tree_apple', colorHex: '#237841', gridX: 10, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'caixa', colorHex: '#8D6E63', gridX: 4, gridY: 0, gridZ: -2, rotationY: 0 },
+      { shape: 'barril', colorHex: '#8D6E63', gridX: 5.5, gridY: 0, gridZ: 0.5, rotationY: 0 },
+      { shape: 'minifigure', colorHex: '#2E7D32', gridX: 3.5, gridY: 0, gridZ: -0.5, rotationY: 0 }
+    ]
+  },
+  {
+    id: 'gran_circuit',
+    title: '✨ El Gran Doble Circuit de Vies',
+    description: 'Cruïlla de quatre vies, andana d\'estació, topall de parada i vies de maniobres!',
+    icon: '⚡',
+    bricks: [
+      // Central 4-way Level Crossing
+      { shape: 'track_crossing', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: 0, rotationY: 0 },
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: 6, rotationY: 0 },
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: -6, rotationY: 0 },
+      { shape: 'track_buffer', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: 12, rotationY: 0 },
+      { shape: 'track_buffer', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: -12, rotationY: Math.PI },
+
+      // East-West Branch
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 6, gridY: 0, gridZ: 0, rotationY: Math.PI / 2 },
+      { shape: 'track_curve_right', colorHex: '#475569', gridX: 14, gridY: 0, gridZ: 4, rotationY: 0 },
+      { shape: 'track_buffer', colorHex: '#475569', gridX: 18, gridY: 0, gridZ: 4, rotationY: Math.PI / 2 },
+
+      // Station with platform along X = -8
+      { shape: 'track_station', colorHex: '#8A9299', gridX: -6, gridY: 0, gridZ: 0, rotationY: 0 },
+      { shape: 'fanal', colorHex: '#1B1B1B', gridX: -9.5, gridY: 0, gridZ: 2.5, rotationY: 0 },
+      { shape: 'rellotge', colorHex: '#1B1B1B', gridX: -9.5, gridY: 0, gridZ: -2.5, rotationY: 0 },
+      { shape: 'minifigure', colorHex: '#FAC80A', gridX: -8.5, gridY: 0, gridZ: 0.5, rotationY: 0 },
+      { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: -3.5, gridY: 0, gridZ: 3.5, rotationY: 0 }
+    ]
   }
 ];

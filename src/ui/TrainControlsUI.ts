@@ -80,6 +80,10 @@ export class TrainControlsUI {
             <span>🔔 Campana</span>
           </button>
 
+          <button class="hud-pill rainbow-pill ${this.trainActor.isRainbowSmoke ? 'active' : ''}" id="btn-rainbow-smoke" title="🌈 Fum Màgic de Colors">
+            <span>🌈 Fum Màgic</span>
+          </button>
+
           <button class="hud-pill hud-exit-btn" id="btn-back-to-build" title="Tornar a construir">
             <span>🧱 Mode Construcció</span>
           </button>
@@ -109,6 +113,15 @@ export class TrainControlsUI {
             </div>
             <div class="speed-label">
               <span class="speed-val" id="speed-value">0</span> <small>km/h</small>
+            </div>
+          </div>
+
+          <!-- Passenger Count Widget -->
+          <div class="passengers-widget" id="passengers-widget" title="Passatgers a bord del tren!">
+            <span class="passengers-icon">🧑</span>
+            <div class="passengers-info">
+              <span class="passengers-num" id="passengers-count">0</span>
+              <span class="passengers-label">Viatgers</span>
             </div>
           </div>
 
@@ -269,9 +282,31 @@ export class TrainControlsUI {
       setTimeout(() => bellBtn.classList.remove('active'), 600);
     });
 
+    // Magic Rainbow Smoke toggle
+    const rainbowBtn = this.container.querySelector('#btn-rainbow-smoke');
+    rainbowBtn?.addEventListener('click', () => {
+      this.trainActor.isRainbowSmoke = !this.trainActor.isRainbowSmoke;
+      if (this.trainActor.isRainbowSmoke) {
+        soundSynth.playMagicRainbow();
+        voiceHandler.speak('Fum màgic de colors activat! Vermell, taronja, groc, verd, blau i lila!');
+        rainbowBtn.classList.add('active');
+      } else {
+        soundSynth.playUIBeep(400);
+        voiceHandler.speak('Fum blanc normal.');
+        rainbowBtn.classList.remove('active');
+      }
+    });
+
     this.speedGaugeValue = this.container.querySelector('#speed-value');
     this.speedNeedle = this.container.querySelector('#speed-needle');
     this.routeCustomText = this.container.querySelector('#route-custom-text');
+  }
+
+  public setPassengersCount(count: number): void {
+    const countEl = this.container.querySelector('#passengers-count');
+    if (countEl) {
+      countEl.textContent = count.toString();
+    }
   }
 
   private updateRouteUI(): void {
