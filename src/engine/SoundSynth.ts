@@ -547,6 +547,130 @@ export class SoundSynth {
       osc.stop(t + offset + 0.18);
     });
   }
+
+  /**
+   * Sparkling magic rainbow chime (Arpeggio C5, E5, G5, B5, C6 with sparkle overtone)
+   */
+  public playMagicRainbow(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 987.77, 1046.50, 1318.51];
+    notes.forEach((freq, idx) => {
+      const startTime = t + idx * 0.08;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.05, startTime + 0.35);
+
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.3, startTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.5);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.5);
+    });
+  }
+
+  /**
+   * Elastic tactile spring boing (Animal jumping / bouncing)
+   */
+  public playAnimalJump(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(540, t + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.25);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.4, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.28);
+  }
+
+  /**
+   * Celebratory cheer / happy party fanfare
+   */
+  public playCheer(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const chords = [
+      { notes: [523.25, 659.25, 783.99], time: 0.0, dur: 0.18 },
+      { notes: [587.33, 739.99, 880.00], time: 0.2, dur: 0.18 },
+      { notes: [659.25, 830.61, 987.77], time: 0.4, dur: 0.18 },
+      { notes: [783.99, 987.77, 1046.50, 1318.51], time: 0.6, dur: 0.6 }
+    ];
+
+    chords.forEach(({ notes, time, dur }) => {
+      notes.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t + time);
+
+        gain.gain.setValueAtTime(0.001, t + time);
+        gain.gain.linearRampToValueAtTime(0.18, t + time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + time + dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(t + time);
+        osc.stop(t + time + dur);
+      });
+    });
+  }
+
+  /**
+   * Crisp mechanical woodblock / station clock tick-tock
+   */
+  public playClockTick(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    [0, 0.22].forEach((offset, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(idx === 0 ? 820 : 640, t + offset);
+
+      gain.gain.setValueAtTime(0.001, t + offset);
+      gain.gain.linearRampToValueAtTime(0.3, t + offset + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.06);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t + offset);
+      osc.stop(t + offset + 0.06);
+    });
+  }
 }
 
 export const soundSynth = new SoundSynth();

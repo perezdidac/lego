@@ -11,6 +11,7 @@ export class MissionCardUI {
   private onToolSuggest?: (shape: BrickShape) => void;
   private onTimeOfDayToggle?: () => 'day' | 'sunset' | 'night';
   private onBlueprintsToggle?: () => void;
+  private onWordBookToggle?: () => void;
 
   private narratorBubbleText: HTMLElement | null = null;
   private narratorAvatar: HTMLElement | null = null;
@@ -26,6 +27,7 @@ export class MissionCardUI {
       onToolSuggest?: (shape: BrickShape) => void;
       onTimeOfDayToggle?: () => 'day' | 'sunset' | 'night';
       onBlueprintsToggle?: () => void;
+      onWordBookToggle?: () => void;
     }
   ) {
     this.missionManager = missionManager;
@@ -33,6 +35,7 @@ export class MissionCardUI {
     this.onToolSuggest = callbacks.onToolSuggest;
     this.onTimeOfDayToggle = callbacks.onTimeOfDayToggle;
     this.onBlueprintsToggle = callbacks.onBlueprintsToggle;
+    this.onWordBookToggle = callbacks.onWordBookToggle;
 
     this.container = document.createElement('div');
     this.container.className = 'mission-header-container';
@@ -111,6 +114,9 @@ export class MissionCardUI {
               <span class="mic-icon">🎙️</span>
               <span class="mic-pulse"></span>
             </button>
+            <button class="round-btn words-btn" id="btn-words-book" title="⭐ L'Àlbum de les Paraules Catalanes">
+              <span>⭐</span>
+            </button>
             <button class="round-btn sound-btn" id="btn-toggle-sound" title="Activa / Silencia el so">
               <span class="sound-icon">🔊</span>
             </button>
@@ -147,6 +153,15 @@ export class MissionCardUI {
       soundSynth.playUIBeep(640);
       if (this.onBlueprintsToggle) {
         this.onBlueprintsToggle();
+      }
+    });
+
+    // Word Book modal
+    const wordsBtn = this.container.querySelector('#btn-words-book');
+    wordsBtn?.addEventListener('click', () => {
+      soundSynth.playUIBeep(720);
+      if (this.onWordBookToggle) {
+        this.onWordBookToggle();
       }
     });
 

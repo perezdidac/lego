@@ -38,8 +38,19 @@ export class TrainActor {
   // Whistle state
   public isWhistling: boolean = false;
   private whistleTimer: number = 0;
+  public onWhistleCallback?: () => void;
 
-  // Smoke system
+  // Smoke system & Rainbow Magic
+  public isRainbowSmoke: boolean = false;
+  private rainbowIndex: number = 0;
+  private readonly rainbowPalette: number[] = [
+    0xD11A2A, // Vermell
+    0xFF7E14, // Taronja
+    0xFAC80A, // Groc
+    0x237841, // Verd
+    0x0055BF, // Blau
+    0x8E44AD  // Lila
+  ];
   private smokeParticles: SmokeParticle[] = [];
   private smokeMaterial: THREE.MeshStandardMaterial;
   private smokeGeometry: THREE.SphereGeometry;
@@ -213,10 +224,12 @@ export class TrainActor {
     soundSynth.playWhistle();
     this.isWhistling = true;
     this.whistleTimer = 1.3;
-    // Spawn extra thick white steam puff bursts!
+    // Spawn extra thick steam puff bursts!
     for (let i = 0; i < 6; i++) {
       this.spawnSmokeParticle(true);
     }
+    // Notify world animals and scenery to react!
+    this.onWhistleCallback?.();
   }
 
   public update(dt: number): void {
@@ -406,6 +419,15 @@ export class TrainActor {
     const chimneyWorld = this.chimneyLocalPos.clone().applyMatrix4(this.root.matrixWorld);
 
     const mat = this.smokeMaterial.clone();
+    if (this.isRainbowSmoke) {
+      const colorHex = this.rainbowPalette[this.rainbowIndex % this.rainbowPalette.length];
+      this.rainbowIndex++;
+      mat.color.setHex(colorHex);
+      mat.opacity = 0.85;
+      mat.emissive = new THREE.Color(colorHex);
+      mat.emissiveIntensity = 0.6;
+    }
+
     const mesh = new THREE.Mesh(this.smokeGeometry, mat);
     mesh.position.copy(chimneyWorld);
 

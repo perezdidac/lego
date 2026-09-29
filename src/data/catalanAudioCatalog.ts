@@ -186,3 +186,211 @@ export const VOICE_COMMANDS = {
     negre: ['negre', 'negra', 'black']
   }
 };
+
+export interface CatalanWordCard {
+  id: string;
+  word: string;
+  syllables: string[];
+  article: string;
+  translationEn: string;
+  emoji: string;
+  category: 'tren' | 'animals' | 'natura' | 'casa';
+  sentence: string;
+  soundType: 'train' | 'bell' | 'cow' | 'sheep' | 'duck' | 'magic' | 'wood' | 'pop';
+  shapeMatch: string[];
+}
+
+export const CATALAN_DICTIONARY: CatalanWordCard[] = [
+  {
+    id: 'tren',
+    word: 'TREN',
+    syllables: ['TREN'],
+    article: 'El',
+    translationEn: 'Train',
+    emoji: '🚂',
+    category: 'tren',
+    sentence: 'El tren de vapor corre veloç per les vies!',
+    soundType: 'train',
+    shapeMatch: []
+  },
+  {
+    id: 'via',
+    word: 'VIA',
+    syllables: ['VI', 'A'],
+    article: 'La',
+    translationEn: 'Railway track',
+    emoji: '🛤️',
+    category: 'tren',
+    sentence: 'La via de tren uneix tots els pobles!',
+    soundType: 'pop',
+    shapeMatch: ['track_straight', 'track_straight_long', 'track_curve_right', 'track_curve_left', 'track_curve', 'track_crossing', 'track_buffer']
+  },
+  {
+    id: 'pont',
+    word: 'PONT',
+    syllables: ['PONT'],
+    article: 'El',
+    translationEn: 'Bridge',
+    emoji: '🌉',
+    category: 'tren',
+    sentence: 'El pont fort creua el riu d\'aigua fresca!',
+    soundType: 'wood',
+    shapeMatch: ['arch1x4']
+  },
+  {
+    id: 'estacio',
+    word: 'ESTACIÓ',
+    syllables: ['ES', 'TA', 'CI', 'Ó'],
+    article: 'L\'',
+    translationEn: 'Station',
+    emoji: '🚉',
+    category: 'tren',
+    sentence: 'Tots els viatgers pugen alegres a l\'estació!',
+    soundType: 'bell',
+    shapeMatch: ['track_station']
+  },
+  {
+    id: 'vaca',
+    word: 'VACA',
+    syllables: ['VA', 'CA'],
+    article: 'La',
+    translationEn: 'Cow',
+    emoji: '🐄',
+    category: 'animals',
+    sentence: 'La vaca fa muuu i menja herba fresca del prat!',
+    soundType: 'cow',
+    shapeMatch: ['vaca']
+  },
+  {
+    id: 'ovella',
+    word: 'OVELLA',
+    syllables: ['O', 'VE', 'LLA'],
+    article: 'L\'',
+    translationEn: 'Sheep',
+    emoji: '🐑',
+    category: 'animals',
+    sentence: 'L\'ovelleta blanca fa beee i té la llana suau!',
+    soundType: 'sheep',
+    shapeMatch: ['ovella']
+  },
+  {
+    id: 'anec',
+    word: 'ÀNEC',
+    syllables: ['À', 'NEC'],
+    article: 'L\'',
+    translationEn: 'Duck',
+    emoji: '🦆',
+    category: 'animals',
+    sentence: 'L\'ànec neda pel riu i fa quac-quac!',
+    soundType: 'duck',
+    shapeMatch: ['anec']
+  },
+  {
+    id: 'passatger',
+    word: 'PASSATGER',
+    syllables: ['PAS', 'SAT', 'GER'],
+    article: 'El',
+    translationEn: 'Passenger',
+    emoji: '🧑',
+    category: 'animals',
+    sentence: 'El passatger saluda el maquinista amb un somriure!',
+    soundType: 'pop',
+    shapeMatch: ['minifigure']
+  },
+  {
+    id: 'flor',
+    word: 'FLOR',
+    syllables: ['FLOR'],
+    article: 'La',
+    translationEn: 'Flower',
+    emoji: '🌸',
+    category: 'natura',
+    sentence: 'Una flor de colors molt bonica i olorosa!',
+    soundType: 'magic',
+    shapeMatch: ['flower']
+  },
+  {
+    id: 'avet',
+    word: 'AVET',
+    syllables: ['A', 'VET'],
+    article: 'L\'',
+    translationEn: 'Pine tree',
+    emoji: '🌲',
+    category: 'natura',
+    sentence: 'L\'avet verd del bosc de muntanya!',
+    soundType: 'wood',
+    shapeMatch: ['tree_pine']
+  },
+  {
+    id: 'pomera',
+    word: 'POMERA',
+    syllables: ['PO', 'ME', 'RA'],
+    article: 'La',
+    translationEn: 'Apple tree',
+    emoji: '🌳',
+    category: 'natura',
+    sentence: 'La pomera té pomes vermelles i ben dolces!',
+    soundType: 'wood',
+    shapeMatch: ['tree_apple']
+  },
+  {
+    id: 'casa',
+    word: 'CASA',
+    syllables: ['CA', 'SA'],
+    article: 'La',
+    translationEn: 'House',
+    emoji: '🏠',
+    category: 'casa',
+    sentence: 'Una caseta acollidora amb porta i teulada!',
+    soundType: 'wood',
+    shapeMatch: ['porta', 'finestra', 'slope2x4', 'slope2x2', 'teulada_con']
+  },
+  {
+    id: 'senyera',
+    word: 'SENYERA',
+    syllables: ['SEN', 'YE', 'RA'],
+    article: 'La',
+    translationEn: 'Catalan flag',
+    emoji: '🚩',
+    category: 'natura',
+    sentence: 'La senyera té quatre barres vermelles sobre fons groc!',
+    soundType: 'magic',
+    shapeMatch: ['senyera']
+  },
+  {
+    id: 'rellotge',
+    word: 'RELLOTGE',
+    syllables: ['REL', 'LOT', 'GE'],
+    article: 'El',
+    translationEn: 'Clock',
+    emoji: '⏰',
+    category: 'casa',
+    sentence: 'El rellotge fa tic-tac i marca l\'hora del tren!',
+    soundType: 'bell',
+    shapeMatch: ['rellotge']
+  },
+  {
+    id: 'fanal',
+    word: 'FANAL',
+    syllables: ['FA', 'NAL'],
+    article: 'El',
+    translationEn: 'Street lamp',
+    emoji: '💡',
+    category: 'casa',
+    sentence: 'El fanal il·lumina el carrer quan arriba la nit!',
+    soundType: 'magic',
+    shapeMatch: ['fanal']
+  },
+  {
+    id: 'banc',
+    word: 'BANC',
+    syllables: ['BANC'],
+    article: 'El',
+    translationEn: 'Park bench',
+    emoji: '🪑',
+    category: 'natura',
+    sentence: 'Un banc de fusta per seure a mirar passar el tren!',
+    soundType: 'wood',
+    shapeMatch: ['banc']
+  }
+];

@@ -741,10 +741,15 @@ export class GridSystem {
     return true;
   }
 
+  private livingTime: number = 0;
+
   /**
-   * Animation tick for micro-bounces
+   * Animation tick for micro-bounces and living world entities
    */
   public update(dt: number): void {
+    this.livingTime += dt;
+
+    // 1. Tactile bounce animations
     for (let i = this.animatedBricks.length - 1; i >= 0; i--) {
       const anim = this.animatedBricks[i];
       anim.time += dt;
@@ -763,6 +768,46 @@ export class GridSystem {
         this.animatedBricks.splice(i, 1);
       }
     }
+
+    // 2. Living World Idle Micro-Animations:
+    for (let i = 0; i < this.placedBricks.length; i++) {
+      const b = this.placedBricks[i];
+      // Ducks gently bob on river water
+      if (b.shape === 'anec') {
+        const phase = (b.gridX * 0.5 + b.gridZ * 0.3);
+        b.mesh.position.y = (b.gridY * BrickFactory.BRICK_HEIGHT) + Math.sin(this.livingTime * 3.0 + phase) * 0.06;
+        b.mesh.rotation.z = Math.sin(this.livingTime * 2.0 + phase) * 0.04;
+      }
+      // Senyera gently flutters in the breeze
+      else if (b.shape === 'senyera') {
+        b.mesh.rotation.y = b.rotationY + Math.sin(this.livingTime * 2.5 + b.gridX) * 0.06;
+      }
+    }
+  }
+
+  /**
+   * Make animals & minifigures jump and react happily when the train whistle blows!
+   */
+  public reactToWhistle(): { jumpedCount: number; shapes: BrickShape[] } {
+    const animalShapes: BrickShape[] = ['vaca', 'ovella', 'anec', 'minifigure'];
+    const reactedShapes: BrickShape[] = [];
+
+    for (const b of this.placedBricks) {
+      if (animalShapes.includes(b.shape)) {
+        // Trigger high cheerful bounce!
+        b.mesh.scale.set(1.3, 0.7, 1.3);
+        this.animatedBricks.push({
+          mesh: b.mesh,
+          time: 0,
+          duration: 0.42
+        });
+        if (!reactedShapes.includes(b.shape)) {
+          reactedShapes.push(b.shape);
+        }
+      }
+    }
+
+    return { jumpedCount: reactedShapes.length, shapes: reactedShapes };
   }
 
   public getPlacedBricks(): PlacedBrick[] {
