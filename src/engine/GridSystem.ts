@@ -417,8 +417,11 @@ export class GridSystem {
       snapY = 0.9 - BrickFactory.BRICK_HEIGHT / 2;
       layer = 1;
     } else {
-      snapX = Math.round(point.x + (effWidth % 2 === 0 ? 0.5 : 0)) - (effWidth % 2 === 0 ? 0.5 : 0);
-      snapZ = Math.round(point.z + (effDepth % 2 === 0 ? 0.5 : 0)) - (effDepth % 2 === 0 ? 0.5 : 0);
+      // Baseplate studs are at integer + 0.5 (half-integers).
+      // For even width/depth, studs on the brick are at half-integers in local space, so world center MUST be an integer.
+      // For odd width/depth, studs on the brick are at integers in local space, so world center MUST be a half-integer (Z + 0.5).
+      snapX = (Math.round(effWidth) % 2 === 0) ? Math.round(point.x) : (Math.floor(point.x) + 0.5);
+      snapZ = (Math.round(effDepth) % 2 === 0) ? Math.round(point.z) : (Math.floor(point.z) + 0.5);
 
       // Identify if an existing placed brick was intersected
       let hitBrick: PlacedBrick | undefined;
@@ -481,14 +484,16 @@ export class GridSystem {
     const halfW = width / 2;
     const halfD = depth / 2;
 
-    // Check bounds (56x56 studs baseplate)
-    if (Math.abs(snapX) > 26 || Math.abs(snapZ) > 26) return false;
+    // Check bounds (56x56 studs baseplate: [-28, 28])
+    if (Math.abs(snapX) + halfW > 28 || Math.abs(snapZ) + halfD > 28) return false;
 
     // Check against existing placed bricks across all vertical layers
     for (let l = layer; l < layer + heightLayers; l++) {
-      for (let x = -Math.floor(halfW); x < Math.ceil(halfW); x++) {
-        for (let z = -Math.floor(halfD); z < Math.ceil(halfD); z++) {
-          const key = `${Math.round(snapX + x)},${l},${Math.round(snapZ + z)}`;
+      for (let ix = 0; ix < width; ix++) {
+        for (let iz = 0; iz < depth; iz++) {
+          const studX = snapX - (width - 1) / 2 + ix;
+          const studZ = snapZ - (depth - 1) / 2 + iz;
+          const key = `${studX.toFixed(1)},${l},${studZ.toFixed(1)}`;
           if (this.gridOccupancy.has(key)) {
             return false;
           }
@@ -536,9 +541,11 @@ export class GridSystem {
     const heightLayers = Math.max(1, Math.round(def.heightUnits || 1));
 
     for (let l = layer; l < layer + heightLayers; l++) {
-      for (let ix = -Math.floor(effWidth / 2); ix < Math.ceil(effWidth / 2); ix++) {
-        for (let iz = -Math.floor(effDepth / 2); iz < Math.ceil(effDepth / 2); iz++) {
-          const key = `${Math.round(x + ix)},${l},${Math.round(z + iz)}`;
+      for (let ix = 0; ix < effWidth; ix++) {
+        for (let iz = 0; iz < effDepth; iz++) {
+          const studX = x - (effWidth - 1) / 2 + ix;
+          const studZ = z - (effDepth - 1) / 2 + iz;
+          const key = `${studX.toFixed(1)},${l},${studZ.toFixed(1)}`;
           this.gridOccupancy.set(key, placed);
         }
       }

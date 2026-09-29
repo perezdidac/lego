@@ -79,28 +79,33 @@ export const BLUEPRINTS: BlueprintDefinition[] = [
     description: 'Vies connectades, andana d\'estació, creuament, senyals de pas a nivell i topall de via!',
     icon: '🛤️',
     bricks: [
-      // Station along x = -6, z = 0
-      { shape: 'track_station', colorHex: '#8A9299', gridX: -6, gridY: 0, gridZ: 0, rotationY: 0 },
-      { shape: 'track_straight', colorHex: '#475569', gridX: -6, gridY: 0, gridZ: 4, rotationY: 0 },
-      { shape: 'track_curve_right', colorHex: '#475569', gridX: -4, gridY: 0, gridZ: 8, rotationY: Math.PI / 2 },
-      { shape: 'track_straight', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: 10, rotationY: Math.PI / 2 },
-      { shape: 'track_curve_right', colorHex: '#475569', gridX: 4, gridY: 0, gridZ: 8, rotationY: Math.PI },
-      { shape: 'track_straight_long', colorHex: '#475569', gridX: 6, gridY: 0, gridZ: 2, rotationY: 0 },
-      { shape: 'track_straight', colorHex: '#475569', gridX: 6, gridY: 0, gridZ: -4, rotationY: 0 },
-      { shape: 'track_curve_right', colorHex: '#475569', gridX: 4, gridY: 0, gridZ: -8, rotationY: (3 * Math.PI) / 2 },
-      { shape: 'track_straight', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: -10, rotationY: Math.PI / 2 },
-      { shape: 'track_curve_right', colorHex: '#475569', gridX: -4, gridY: 0, gridZ: -8, rotationY: 0 },
-      { shape: 'track_straight', colorHex: '#475569', gridX: -6, gridY: 0, gridZ: -4, rotationY: 0 },
+      // 1. Four 8x8 Gentle Curved Corners (R = 4.0) & Connecting Long Straights (closed loop)
+      // Top-Left gentle curve 90° (from Z=4 heading North to X=-4 heading East)
+      { shape: 'track_curve_right', colorHex: '#475569', gridX: -8, gridY: 0, gridZ: 8, rotationY: 0 },
+      // Top long straight (8 studs)
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: 8, rotationY: Math.PI / 2 },
+      // Top-Right gentle curve 90° (from X=4 heading East to Z=4 heading South)
+      { shape: 'track_curve_right', colorHex: '#475569', gridX: 8, gridY: 0, gridZ: 8, rotationY: Math.PI / 2 },
+      // Right long straight (8 studs)
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 8, gridY: 0, gridZ: 0, rotationY: 0 },
+      // Bottom-Right gentle curve 90° (from Z=-4 heading South to X=4 heading West)
+      { shape: 'track_curve_right', colorHex: '#475569', gridX: 8, gridY: 0, gridZ: -8, rotationY: Math.PI },
+      // Bottom long straight (8 studs)
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: 0, gridY: 0, gridZ: -8, rotationY: Math.PI / 2 },
+      // Bottom-Left gentle curve 90° (from X=-4 heading West to Z=-4 heading North)
+      { shape: 'track_curve_right', colorHex: '#475569', gridX: -8, gridY: 0, gridZ: -8, rotationY: (3 * Math.PI) / 2 },
+      // Left station straight track (8 studs)
+      { shape: 'track_straight_long', colorHex: '#475569', gridX: -8, gridY: 0, gridZ: 0, rotationY: 0 },
 
-      // Siding with buffer
-      { shape: 'track_buffer', colorHex: '#475569', gridX: 6, gridY: 0, gridZ: 14, rotationY: 0 },
+      // 2. Station accessories & platform beside left track
+      { shape: 'fanal', colorHex: '#1B1B1B', gridX: -11.5, gridY: 0, gridZ: 2.5, rotationY: 0 },
+      { shape: 'banc', colorHex: '#8D6E63', gridX: -11, gridY: 0, gridZ: 0, rotationY: Math.PI / 2 },
+      { shape: 'rellotge', colorHex: '#1B1B1B', gridX: -11.5, gridY: 0, gridZ: -2.5, rotationY: 0 },
+      { shape: 'minifigure', colorHex: '#0055BF', gridX: -10.5, gridY: 0, gridZ: 1.5, rotationY: 0 },
 
-      // Crossing sign & benches & lights
-      { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: 2, gridY: 0, gridZ: 8, rotationY: 0 },
-      { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: -2, gridY: 0, gridZ: 8, rotationY: 0 },
-      { shape: 'fanal', colorHex: '#1B1B1B', gridX: -8, gridY: 0, gridZ: 0, rotationY: 0 },
-      { shape: 'banc', colorHex: '#8D6E63', gridX: -8, gridY: 0, gridZ: 2, rotationY: Math.PI / 2 },
-      { shape: 'rellotge', colorHex: '#1B1B1B', gridX: -8, gridY: 0, gridZ: -2, rotationY: 0 }
+      // 3. Railway Crossing signs along North track
+      { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: 2.5, gridY: 0, gridZ: 10.5, rotationY: 0 },
+      { shape: 'senyal_tren', colorHex: '#F4F4F4', gridX: -2.5, gridY: 0, gridZ: 10.5, rotationY: 0 }
     ]
   }
 ];

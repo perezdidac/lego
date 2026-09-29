@@ -96,9 +96,9 @@ export const BRICK_DEFS: Record<BrickShape, BrickDefinition> = {
   // Lego City Modular Tracks
   'track_straight': { width: 2, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Recta (4)', category: 'vies', icon: '🛤️ Recta' },
   'track_straight_long': { width: 2, depth: 8, heightUnits: 0.33, nameCatalan: 'Via Llarga (8)', category: 'vies', icon: '🛤️ Llarga' },
-  'track_curve_right': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Corba Dreta 90°', category: 'vies', icon: '↪️ Corba Dreta' },
-  'track_curve_left': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Corba Esquerra 90°', category: 'vies', icon: '↩️ Corba Esq.' },
-  'track_curve': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Via Corba', category: 'vies', icon: '🔄 Corba' },
+  'track_curve_right': { width: 8, depth: 8, heightUnits: 0.33, nameCatalan: 'Corba Suau Dreta 90°', category: 'vies', icon: '↪️ Corba Dreta' },
+  'track_curve_left': { width: 8, depth: 8, heightUnits: 0.33, nameCatalan: 'Corba Suau Esquerra 90°', category: 'vies', icon: '↩️ Corba Esq.' },
+  'track_curve': { width: 8, depth: 8, heightUnits: 0.33, nameCatalan: 'Via Corba Suau', category: 'vies', icon: '🔄 Corba' },
   'track_crossing': { width: 4, depth: 4, heightUnits: 0.33, nameCatalan: 'Cruïlla 4 Vies', category: 'vies', icon: '➕ Cruïlla' },
   'track_buffer': { width: 2, depth: 4, heightUnits: 1.0, nameCatalan: 'Topall de Via', category: 'vies', icon: '🛑 Topall' },
   'track_station': { width: 4, depth: 4, heightUnits: 2.0, nameCatalan: 'Andana d\'Estació', category: 'vies', icon: '🚉 Andana' },
@@ -982,14 +982,14 @@ export class BrickFactory {
     const sleeperMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#475569', 0.4, 0.1);
     const railMat = isGhost ? this.getGhostMaterial(true) : this.getMaterial('#CBD5E1', 0.15, 0.85);
 
-    const R = 2.0; // Radius connecting (0, -2) to (2, 0)
+    const R = 4.0; // Gentle modular curve radius R = 4.0 studs connecting (0, -4) to (4*sSign, 0)
     const gauge = 1.3;
-    const numSleepers = 5;
+    const numSleepers = 9;
     const sSign = isLeft ? -1 : 1;
 
-    // Center of curvature: (2*sSign, -2)
-    const cx = 2.0 * sSign;
-    const cz = -2.0;
+    // Center of curvature: (4*sSign, -4)
+    const cx = 4.0 * sSign;
+    const cz = -4.0;
 
     // Sleepers along the 90 degree arc
     for (let i = 0; i < numSleepers; i++) {
@@ -1001,11 +1001,12 @@ export class BrickFactory {
       sMesh.position.set(x, 0.125, z);
       sMesh.rotation.y = sSign * phi;
       sMesh.castShadow = !isGhost;
+      sMesh.receiveShadow = !isGhost;
       group.add(sMesh);
     }
 
     // Smooth dual curved rails using CatmullRom tube
-    const steps = 14;
+    const steps = 24;
     const leftPoints: THREE.Vector3[] = [];
     const rightPoints: THREE.Vector3[] = [];
 
@@ -1026,8 +1027,8 @@ export class BrickFactory {
     const leftCurve = new THREE.CatmullRomCurve3(leftPoints);
     const rightCurve = new THREE.CatmullRomCurve3(rightPoints);
 
-    const railGeoL = new THREE.TubeGeometry(leftCurve, 16, 0.065, 6, false);
-    const railGeoR = new THREE.TubeGeometry(rightCurve, 16, 0.065, 6, false);
+    const railGeoL = new THREE.TubeGeometry(leftCurve, 28, 0.065, 6, false);
+    const railGeoR = new THREE.TubeGeometry(rightCurve, 28, 0.065, 6, false);
 
     const railMeshL = new THREE.Mesh(railGeoL, railMat);
     const railMeshR = new THREE.Mesh(railGeoR, railMat);
@@ -1038,8 +1039,8 @@ export class BrickFactory {
 
     group.userData = {
       type: isLeft ? 'track_curve_left' : 'track_curve_right',
-      widthStuds: 4,
-      depthStuds: 4,
+      widthStuds: 8,
+      depthStuds: 8,
       height: 0.47
     };
     return group;

@@ -63,11 +63,9 @@ export class TrainActor {
 
     // 2. Build Coal Tender Carriage
     this.buildTenderCar();
-    this.root.add(this.tenderGroup);
 
     // 3. Build Passenger Carriage
     this.buildPassengerCoach();
-    this.root.add(this.coachGroup);
 
     // 4. Smoke Particle Setup
     this.smokeGeometry = new THREE.SphereGeometry(0.25, 8, 8);
@@ -80,6 +78,8 @@ export class TrainActor {
     });
 
     scene.add(this.root);
+    scene.add(this.tenderGroup);
+    scene.add(this.coachGroup);
 
     // Initial position on track (start in front of station)
     this.distance = 4.0;
@@ -91,14 +91,14 @@ export class TrainActor {
     const blackMat = BrickFactory.getMaterial('#1B1B1B', 0.25, 0.1);
     const redMat = BrickFactory.getMaterial('#D11A2A', 0.2, 0.05);
     const chassis = new THREE.Mesh(chassisGeo, blackMat);
-    chassis.position.set(0, 0.65, -4.5);
+    chassis.position.set(0, 0.65, 0);
     chassis.castShadow = true;
     this.tenderGroup.add(chassis);
 
     // Coal bin walls
     const wallGeo = new THREE.BoxGeometry(1.8, 0.9, 2.9);
     const walls = new THREE.Mesh(wallGeo, redMat);
-    walls.position.set(0, 1.25, -4.5);
+    walls.position.set(0, 1.25, 0);
     walls.castShadow = true;
     this.tenderGroup.add(walls);
 
@@ -106,14 +106,14 @@ export class TrainActor {
     const coalGeo = new THREE.DodecahedronGeometry(0.75, 1);
     const coalMat = BrickFactory.getMaterial('#111111', 0.8, 0.0);
     const coal = new THREE.Mesh(coalGeo, coalMat);
-    coal.position.set(0, 1.8, -4.5);
+    coal.position.set(0, 1.8, 0);
     coal.scale.set(1.1, 0.5, 1.8);
     this.tenderGroup.add(coal);
 
-    // Tender wheels (4 wheels)
+    // Tender wheels (4 wheels) centered around local origin
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.15, 16);
     [-1.0, 1.0].forEach((side) => {
-      [-5.3, -3.7].forEach((zPos) => {
+      [-0.9, 0.9].forEach((zPos) => {
         const wGroup = new THREE.Group();
         wGroup.position.set(side * 1.0, 0.38, zPos);
         const wMesh = new THREE.Mesh(wheelGeo, blackMat);
@@ -125,12 +125,18 @@ export class TrainActor {
       });
     });
 
-    // Hitch link
-    const hitchGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8);
-    const hitch = new THREE.Mesh(hitchGeo, blackMat);
-    hitch.rotation.x = Math.PI / 2;
-    hitch.position.set(0, 0.65, -2.8);
-    this.tenderGroup.add(hitch);
+    // Hitch link pointing forward (+Z toward loco)
+    const hitchGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8);
+    const hitchFront = new THREE.Mesh(hitchGeo, blackMat);
+    hitchFront.rotation.x = Math.PI / 2;
+    hitchFront.position.set(0, 0.65, 1.8);
+    this.tenderGroup.add(hitchFront);
+
+    // Hitch link pointing rear (-Z toward coach)
+    const hitchRear = new THREE.Mesh(hitchGeo, blackMat);
+    hitchRear.rotation.x = Math.PI / 2;
+    hitchRear.position.set(0, 0.65, -1.8);
+    this.tenderGroup.add(hitchRear);
   }
 
   private buildPassengerCoach(): void {
@@ -141,20 +147,20 @@ export class TrainActor {
     const whiteMat = BrickFactory.getMaterial('#F4F4F4', 0.2, 0.05);
 
     const chassis = new THREE.Mesh(chassisGeo, blackMat);
-    chassis.position.set(0, 0.65, -8.7);
+    chassis.position.set(0, 0.65, 0);
     chassis.castShadow = true;
     this.coachGroup.add(chassis);
 
     // Cabin body
     const bodyGeo = new THREE.BoxGeometry(1.9, 1.5, 4.2);
     const body = new THREE.Mesh(bodyGeo, greenMat);
-    body.position.set(0, 1.55, -8.7);
+    body.position.set(0, 1.55, 0);
     body.castShadow = true;
     this.coachGroup.add(body);
 
     // Yellow windows on sides
     [-0.98, 0.98].forEach((xPos) => {
-      [-10.0, -8.7, -7.4].forEach((zPos) => {
+      [-1.3, 0.0, 1.3].forEach((zPos) => {
         const winGeo = new THREE.BoxGeometry(0.05, 0.5, 0.7);
         const win = new THREE.Mesh(winGeo, yellowMat);
         win.position.set(xPos, 1.7, zPos);
@@ -165,14 +171,14 @@ export class TrainActor {
     // White Roof
     const roofGeo = new THREE.BoxGeometry(2.1, 0.25, 4.5);
     const roof = new THREE.Mesh(roofGeo, whiteMat);
-    roof.position.set(0, 2.4, -8.7);
+    roof.position.set(0, 2.4, 0);
     roof.castShadow = true;
     this.coachGroup.add(roof);
 
-    // Coach wheels (4 wheels)
+    // Coach wheels (4 wheels) centered around local origin
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.15, 16);
     [-1.0, 1.0].forEach((side) => {
-      [-10.2, -7.2].forEach((zPos) => {
+      [-1.5, 1.5].forEach((zPos) => {
         const wGroup = new THREE.Group();
         wGroup.position.set(side * 1.0, 0.38, zPos);
         const wMesh = new THREE.Mesh(wheelGeo, blackMat);
@@ -184,11 +190,11 @@ export class TrainActor {
       });
     });
 
-    // Hitch link
-    const hitchGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0, 8);
+    // Hitch link pointing forward (+Z toward tender)
+    const hitchGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8);
     const hitch = new THREE.Mesh(hitchGeo, blackMat);
     hitch.rotation.x = Math.PI / 2;
-    hitch.position.set(0, 0.65, -6.3);
+    hitch.position.set(0, 0.65, 2.4);
     this.coachGroup.add(hitch);
   }
 
@@ -314,13 +320,26 @@ export class TrainActor {
   }
 
   public updatePositionOnTrack(): void {
-    const transform = this.trackNetwork.getTransformAtDistance(this.distance);
-    this.root.position.copy(transform.position);
+    // 1. Locomotive with bogie wheelbase 3.0
+    const locoTransform = this.trackNetwork.getTransformAtDistance(this.distance, 3.0);
+    this.root.position.copy(locoTransform.position);
+    this.root.quaternion.copy(locoTransform.quaternion);
 
     // Smooth chassis sway based on speed
     const swayAngle = Math.sin(this.totalWheelRotation * 1.5) * (Math.abs(this.speed) / this.maxSpeed) * 0.03;
-    this.root.quaternion.copy(transform.quaternion);
     this.root.rotateZ(swayAngle);
+
+    // 2. Coal Tender Carriage (centered at distance - 4.4, bogie wheelbase 1.8)
+    const tenderTransform = this.trackNetwork.getTransformAtDistance(this.distance - 4.4, 1.8);
+    this.tenderGroup.position.copy(tenderTransform.position);
+    this.tenderGroup.quaternion.copy(tenderTransform.quaternion);
+    this.tenderGroup.rotateZ(-swayAngle * 0.7);
+
+    // 3. Passenger Coach Carriage (centered at distance - 8.6, bogie wheelbase 3.2)
+    const coachTransform = this.trackNetwork.getTransformAtDistance(this.distance - 8.6, 3.2);
+    this.coachGroup.position.copy(coachTransform.position);
+    this.coachGroup.quaternion.copy(coachTransform.quaternion);
+    this.coachGroup.rotateZ(swayAngle * 0.5);
   }
 
   public snapToClosestTrackPoint(worldPos: THREE.Vector3): void {

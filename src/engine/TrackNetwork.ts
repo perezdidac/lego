@@ -45,23 +45,29 @@ export class TrackNetwork {
    * Builds the default scenic circuit
    */
   private createDefaultCircuit(): THREE.CatmullRomCurve3 {
-    // 12 key control points forming a scenic rounded track loop
+    // 18 key control points forming a scenic, gently rounded track loop without sharp corners
     const points: THREE.Vector3[] = [
-      new THREE.Vector3(-12, 0.4, -6),   // Station approach
-      new THREE.Vector3(-12, 0.4, 6),    // Passing Station
-      new THREE.Vector3(-10, 0.4, 12),   // North-West curve
-      new THREE.Vector3(-4, 0.9, 15),    // Bridge incline
-      new THREE.Vector3(0, 0.9, 15),     // Bridge center (Gap here in Mission 1!)
-      new THREE.Vector3(4, 0.9, 15),     // Bridge exit
-      new THREE.Vector3(11, 0.4, 12),    // North-East curve (Forest)
-      new THREE.Vector3(13, 0.4, 4),     // Pine Forest straight
-      new THREE.Vector3(13, 0.4, -6),    // South-East straight
-      new THREE.Vector3(9, 0.4, -13),    // South-East curve
-      new THREE.Vector3(0, 0.4, -15),    // South curve across meadow
-      new THREE.Vector3(-9, 0.4, -13)    // South-West curve back to station
+      new THREE.Vector3(-12, 0.4, -6),    // Station approach straight
+      new THREE.Vector3(-12, 0.4, 0),     // Station center
+      new THREE.Vector3(-12, 0.4, 6),     // Station exit
+      new THREE.Vector3(-10.5, 0.45, 10), // Gentle North-West curve start
+      new THREE.Vector3(-7.5, 0.65, 13.5),// Gentle North-West transition
+      new THREE.Vector3(-4, 0.9, 15),     // Bridge incline
+      new THREE.Vector3(0, 0.9, 15),      // Bridge center (Gap here in Mission 1!)
+      new THREE.Vector3(4, 0.9, 15),      // Bridge exit
+      new THREE.Vector3(7.5, 0.65, 13.5), // North-East curve transition
+      new THREE.Vector3(10.5, 0.45, 10),  // North-East curve (Forest entry)
+      new THREE.Vector3(12.5, 0.4, 6),    // North-East smooth transition
+      new THREE.Vector3(13, 0.4, 0),      // Pine Forest straight
+      new THREE.Vector3(13, 0.4, -6),     // South-East straight
+      new THREE.Vector3(11.5, 0.4, -10.5),// South-East gentle curve
+      new THREE.Vector3(7.5, 0.4, -13.5), // South-East curve transition
+      new THREE.Vector3(0, 0.4, -15),     // South curve across meadow
+      new THREE.Vector3(-7.5, 0.4, -13.5),// South-West curve transition
+      new THREE.Vector3(-11.5, 0.4, -10.5)// South-West curve back to station approach
     ];
 
-    return new THREE.CatmullRomCurve3(points, true, 'centripetal', 0.15);
+    return new THREE.CatmullRomCurve3(points, true, 'centripetal', 0.5);
   }
 
   /**
@@ -257,23 +263,23 @@ export class TrackNetwork {
           localPts.push(new THREE.Vector3(0, 0.45, s));
         }
       } else if (t.shape === 'track_curve_right' || t.shape === 'track_curve') {
-        // Curve Right: R = 2.0, arc from (0, -2) to (2, 0)
-        lA = new THREE.Vector3(0, 0.45, -2.0);
-        lB = new THREE.Vector3(2.0, 0.45, 0.0);
-        for (let i = 0; i <= 8; i++) {
-          const phi = (i / 8) * (Math.PI / 2);
-          const x = 2.0 - 2.0 * Math.cos(phi);
-          const z = -2.0 + 2.0 * Math.sin(phi);
+        // Curve Right: R = 4.0 gentle arc from (0, -4.0) to (4.0, 0.0)
+        lA = new THREE.Vector3(0, 0.45, -4.0);
+        lB = new THREE.Vector3(4.0, 0.45, 0.0);
+        for (let i = 0; i <= 12; i++) {
+          const phi = (i / 12) * (Math.PI / 2);
+          const x = 4.0 - 4.0 * Math.cos(phi);
+          const z = -4.0 + 4.0 * Math.sin(phi);
           localPts.push(new THREE.Vector3(x, 0.45, z));
         }
       } else if (t.shape === 'track_curve_left') {
-        // Curve Left: R = 2.0, arc from (0, -2) to (-2, 0)
-        lA = new THREE.Vector3(0, 0.45, -2.0);
-        lB = new THREE.Vector3(-2.0, 0.45, 0.0);
-        for (let i = 0; i <= 8; i++) {
-          const phi = (i / 8) * (Math.PI / 2);
-          const x = -(2.0 - 2.0 * Math.cos(phi));
-          const z = -2.0 + 2.0 * Math.sin(phi);
+        // Curve Left: R = 4.0 gentle arc from (0, -4.0) to (-4.0, 0.0)
+        lA = new THREE.Vector3(0, 0.45, -4.0);
+        lB = new THREE.Vector3(-4.0, 0.45, 0.0);
+        for (let i = 0; i <= 12; i++) {
+          const phi = (i / 12) * (Math.PI / 2);
+          const x = -(4.0 - 4.0 * Math.cos(phi));
+          const z = -4.0 + 4.0 * Math.sin(phi);
           localPts.push(new THREE.Vector3(x, 0.45, z));
         }
       } else if (t.shape === 'track_buffer') {
@@ -407,7 +413,7 @@ export class TrackNetwork {
       orderedPoints.push(segments[0].portA, segments[0].portB);
     }
 
-    this.customCurve = new THREE.CatmullRomCurve3(orderedPoints, isLoop, 'centripetal', 0.15);
+    this.customCurve = new THREE.CatmullRomCurve3(orderedPoints, isLoop, 'centripetal', 0.5);
     this.customTotalLength = this.customCurve.getLength();
     this.isCustomLoop = isLoop;
   }
@@ -430,9 +436,9 @@ export class TrackNetwork {
   }
 
   /**
-   * Get 3D transform at a distance along track with PROPER RIGHT-HANDED BASIS
+   * Get 3D transform at a distance along track with PROPER RIGHT-HANDED BASIS and BOGIE WHEELBASE SMOOTHING
    */
-  public getTransformAtDistance(distance: number): {
+  public getTransformAtDistance(distance: number, wheelbase: number = 0): {
     position: THREE.Vector3;
     quaternion: THREE.Quaternion;
     rotation: THREE.Euler;
@@ -442,12 +448,56 @@ export class TrackNetwork {
     const activeCurve = (this.activeRoute === 'custom' && this.customCurve) ? this.customCurve : this.trackCurve;
     const len = (this.activeRoute === 'custom' && this.customCurve) ? this.customTotalLength : this.totalLength;
 
-    let d = distance % len;
-    if (d < 0) d += len;
+    if (len <= 0) {
+      return {
+        position: new THREE.Vector3(0, 0.45, 0),
+        quaternion: new THREE.Quaternion(),
+        rotation: new THREE.Euler(),
+        tangent: new THREE.Vector3(0, 0, 1),
+        normal: new THREE.Vector3(0, 1, 0)
+      };
+    }
 
-    const u = d / len;
-    const position = activeCurve.getPointAt(u);
-    const tangent = activeCurve.getTangentAt(u).normalize();
+    const isLoop = (this.activeRoute === 'circuit') || this.isCustomLoop;
+
+    const sampleAtDist = (dVal: number): THREE.Vector3 => {
+      let d = dVal;
+      if (isLoop) {
+        d = d % len;
+        if (d < 0) d += len;
+      } else {
+        d = THREE.MathUtils.clamp(d, 0, len);
+      }
+      const u = THREE.MathUtils.clamp(d / len, 0, 1);
+      return activeCurve.getPointAt(u);
+    };
+
+    let position: THREE.Vector3;
+    let tangent: THREE.Vector3;
+
+    if (wheelbase > 0.1) {
+      // Bogie front & rear axle sampling: smooth vehicle orientation through all curves!
+      const pFront = sampleAtDist(distance + wheelbase * 0.5);
+      const pRear = sampleAtDist(distance - wheelbase * 0.5);
+      position = new THREE.Vector3().addVectors(pFront, pRear).multiplyScalar(0.5);
+      tangent = new THREE.Vector3().subVectors(pFront, pRear);
+      if (tangent.lengthSq() > 0.0001) {
+        tangent.normalize();
+      } else {
+        tangent.set(0, 0, 1);
+      }
+    } else {
+      let d = distance;
+      if (isLoop) {
+        d = d % len;
+        if (d < 0) d += len;
+      } else {
+        d = THREE.MathUtils.clamp(d, 0, len);
+      }
+      const u = THREE.MathUtils.clamp(d / len, 0, 1);
+      position = activeCurve.getPointAt(u);
+      tangent = activeCurve.getTangentAt(u).normalize();
+    }
 
     // STRICT RIGHT-HANDED ORTHONORMAL BASIS:
     // tangent = forward (+Z)
@@ -550,13 +600,13 @@ export class TrackNetwork {
       ];
     } else if (shape === 'track_curve_right') {
       return [
-        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) },
-        { pos: new THREE.Vector3(2.0, 0, 0.0), dir: new THREE.Vector3(1, 0, 0) }
+        { pos: new THREE.Vector3(0, 0, -4.0), dir: new THREE.Vector3(0, 0, -1) },
+        { pos: new THREE.Vector3(4.0, 0, 0.0), dir: new THREE.Vector3(1, 0, 0) }
       ];
     } else if (shape === 'track_curve_left' || shape === 'track_curve') {
       return [
-        { pos: new THREE.Vector3(0, 0, -2.0), dir: new THREE.Vector3(0, 0, -1) },
-        { pos: new THREE.Vector3(-2.0, 0, 0.0), dir: new THREE.Vector3(-1, 0, 0) }
+        { pos: new THREE.Vector3(0, 0, -4.0), dir: new THREE.Vector3(0, 0, -1) },
+        { pos: new THREE.Vector3(-4.0, 0, 0.0), dir: new THREE.Vector3(-1, 0, 0) }
       ];
     } else if (shape === 'track_crossing') {
       return [

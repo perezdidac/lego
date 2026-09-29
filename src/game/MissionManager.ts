@@ -173,12 +173,9 @@ export class MissionManager {
    */
   public update(trainDistance: number, trainSpeed: number): void {
     if (this.state.currentMissionId === 'whistle_and_drive' && this.state.hasWhistled && !this.state.hasDrivenAcrossBridge) {
-      const totalLen = this.trackNetwork.getTotalLength();
-      const bridgeStart = totalLen * 0.28;
-      const bridgeEnd = totalLen * 0.42;
-
-      const normDist = trainDistance % totalLen;
-      if (normDist >= bridgeStart && normDist <= bridgeEnd && Math.abs(trainSpeed) > 1.5) {
+      const { position } = this.trackNetwork.getTransformAtDistance(trainDistance);
+      const isCrossingBridge = Math.abs(position.z - 15) < 2.2 && Math.abs(position.x) < 3.5;
+      if (isCrossingBridge && Math.abs(trainSpeed) > 1.2) {
         this.state.hasDrivenAcrossBridge = true;
         this.completeMission('whistle_and_drive', CATALAN_MISSIONS.mission2.completedPrompt, 'flower_station');
       }
